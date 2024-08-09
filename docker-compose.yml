@@ -1,0 +1,8 @@
+version: '1.0.0'
+services:
+  web:
+    build: ./front
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
