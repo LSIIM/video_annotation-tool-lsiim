@@ -27,9 +27,10 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         Logout();
     }, []);
 
-    const Login = useCallback(async (password: string) => {
-        if (password !== "Abóbora") {
-            throw new Error("Senha inválida"); 
+    const Login = useCallback((password: string) => {
+        console.log(password);
+        if (password != "Abóbora") {
+            return "Senha inválida";
         }
         localStorage.setItem("@Auth.Token", JSON.stringify(btoa("LSIIM/UFSC:Abóbora")));
         localStorage.setItem("@Auth.Data", JSON.stringify({ name: "LSIIM" }));

@@ -70,6 +70,9 @@
     * {
       @apply border-border;
     }
+    input{
+      @apply border-none;
+    }
     body {
       @apply bg-background text-foreground;
     }

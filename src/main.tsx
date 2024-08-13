@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client'
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import  Login from './pages/Login/login';
 import  Home from './pages/Home/home';
 import ErrorPage from './pages/ErrorPage/errorPage';
@@ -10,7 +11,7 @@ import './global.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.Fragment>
     <Toaster position='top-right' toastOptions={{ duration: 2000 }} />
-    {/* <AuthProvider> */}
+    <AuthProvider>
       {/* REACT ROUTER */}
       <BrowserRouter>
         <Routes>
@@ -27,6 +28,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </Routes>
       </BrowserRouter>
       {/* REACT ROUTER */}
-    {/* </AuthProvider> */}
+    </AuthProvider>
   </React.Fragment>
 )

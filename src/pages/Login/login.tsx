@@ -17,19 +17,20 @@ export default function Login() {
   async function handleLogin(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
-    // login(email, password)
-    login(password)
-    .then(() => { 
-      toast.success("Login efetuado com sucesso!");
-      
-      setTimeout(() => {
-        _navigate('/dashboard');
-      }, 2000);
-
-    }).catch(() => {
-      setLoading(false);
+    try {
+      const result = await login(password);
+      if (result === undefined) {
+        toast.success("Login efetuado com sucesso!");
+        setTimeout(() => {}, 2000);
+      } else {
+        toast.error(result);
+      }
+    } catch (error) {
       toast.error("Erro ao efetuar login!");
-    });
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -45,8 +46,8 @@ export default function Login() {
               {/* From */}
               <form onSubmit={handleLogin} className="flex flex-col w-72">
                 {/* <Input placeholder='Insira o Email' onChange={event => setEmail(event.target.value)} type='email' required>Email:</Input> */}
-                <Input placeholder='Senha de Acesso do LSIIM' onChange={event => setPassword(event.target.value)} required type='password'>Senha:</Input>
-                { loading ? 
+                <Input placeholder='Senha de Acesso do LSIIM' changeable={true} onChange={event => setPassword(event.target.value)} required type='password'>Senha:</Input>
+                {loading ?
                   <Button disabled>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Carregando...
@@ -55,7 +56,7 @@ export default function Login() {
                   <Button type='submit' disabled={false} className="bg-zinc-900 text-white hover:bg-zinc-900/75 transition mt-3">
                     Acessar
                   </Button>
-                }   
+                }
               </form>
               <p className="text-xs font-light">Ainda não tem conta ? <a href="/signup" className="font-semibold underline">Inscrever-se</a></p>
               {/* From */}
@@ -64,12 +65,6 @@ export default function Login() {
           {/* Container */}
         </div>
       </div>
-      {/*<div className="">
-        <input type="text" id="password" placeholder="Senha de Acesso LSIIM" />
-        <button onClick={() => {
-            alert("Acesso Liberado");
-          }}>Acessar</button>
-      </div> */}
     </>
   );
 }
