@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
-function VideoPlayer() {
+export default function VideoPlayer() {
   const [videoSrc, setVideoSrc] = useState("");
 
   const handleVideoUpload = (event) => {
@@ -23,5 +23,3 @@ function VideoPlayer() {
     </div>
   );
 }
-
-export default VideoPlayer;
