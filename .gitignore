@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 todo
+src/videos
+src/lsiim

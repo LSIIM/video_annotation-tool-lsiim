@@ -28,11 +28,10 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     }, []);
 
     const Login = useCallback((password: string) => {
-        console.log(password);
-        if (password != "Abóbora") {
+        if (password != "lsiimsim") {
             return "Senha inválida";
         }
-        localStorage.setItem("@Auth.Token", JSON.stringify(btoa("LSIIM/UFSC:Abóbora")));
+        localStorage.setItem("@Auth.Token", JSON.stringify(btoa("LSIIM/UFSC:lsiimsim")));
         localStorage.setItem("@Auth.Data", JSON.stringify({ name: "LSIIM" }));
         setUserData({id: 1, name: "LSIIM" });
         setIsAuthenticated(true);
