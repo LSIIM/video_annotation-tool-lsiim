@@ -7,8 +7,7 @@ import { Navigate } from 'react-router-dom';
 import SearchBar from '@/components/SearchBar';
 // import toast from 'react-hot-toast';
 
-import fakeFiles from '@/lsiim/files.json';
-import toast from 'react-hot-toast';
+import files from '@/lsiim/files.json';
 
 export default function Home() {
 
@@ -17,7 +16,7 @@ export default function Home() {
   }
 
   function handleAnnotate() {
-    
+
   }
 
   const { isAuthenticated } = useAuth();
@@ -27,30 +26,14 @@ export default function Home() {
       <Header />
       <div className='flex justify-center'>
         <SearchBar onClick={() => console.log('search')} />
-        
       </div>
-      {fakeFiles.map((file, i) => (
-        <div key={i} className=''>
-          <Card title={file.title} annotations={file.annotations} videoUrl={file.videoUrl} onAnnotate={handleAnnotate} onVisualize={handleVisualize} />
-        </div>
-      ))}
+      <div className="grid grid-cols-2 gap-4 m-10">
+        {files.map((file, i) => (
+          <div key={i}>
+            <Card fileInfo={file} onAnnotate={handleAnnotate} onVisualize={handleVisualize} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
-// { albums?.map((album, i) => (
-//   <div key={i}>
-//     <div style={{'--bg-fundo': `url(${album.images[0].url})`} as React.CSSProperties} className="bg-[image:var(--bg-fundo)] bg-cover bg-no-repeat w-[220px] h-[220px] rounded-md hover:scale-[1.15] transition">
-//       <div onClick={() => openModal(album.name)} className="flex flex-col h-full justify-between items-center backdrop-brightness-50 shadow-white">
-//         <div /> 
-//         <h1 className="text-2xl font-semibold text-center text-white line-clamp-2 max-w-full px-3">{album.name}</h1>
-//         <div className="flex justify-between items-center w-full mb-2">
-//           <div></div>
-//           <h1 className="text-2xl font-semibold text-center text-white mr-4">R$ {album.value}</h1>
-//         </div>
-//       </div>
-//     </div>
-//     {albumModals[album.name] && (
-//       <div><CustomModal isOpen={true} album={album} onClose={() => closeModal(album.name)} /></div>
-//     )}
-//   </div>
-// ))}
