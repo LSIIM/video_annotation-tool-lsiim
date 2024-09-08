@@ -1,5 +1,5 @@
 export interface VideoInfoModel {
-    fileName: string;
+    fileId: number;
     babyName: string;
     captureDate: number;
     captureResponsible: string;

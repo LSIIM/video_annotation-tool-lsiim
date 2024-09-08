@@ -1,3 +1,4 @@
 node_modules
 src/videos
 src/lsiim
+.env

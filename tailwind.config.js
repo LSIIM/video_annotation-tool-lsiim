@@ -22,6 +22,7 @@ module.exports = {
         'dashBackground': 'url("src/assets/dash_background.jpg")',
       },
       colors: {
+        customGray: 'rgb(26,26,26)',
         primary: 'rgb(158, 226, 255)',
         secondary: 'rgb(251,188,5)',
         base: 'rgb(25,24,31)',
