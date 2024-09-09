@@ -1,68 +1,88 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-// import toast from 'react-hot-toast';
-import '../../global.css'
+import '../../global.css';
 import { useAuth } from '@/hooks/UseAuth';
 import Card from '@/components/Card';
 import CustomModal from '@/components/CustomModal';
 import files from '@/lsiim/files.json';
-import Header from '../../components/Header'
+import Header from '../../components/Header';
 import SearchBar from '@/components/SearchBar';
 
 export default function Home() {
-  const [annotationModal, setAnnotationModal] = useState<{ [key: number]: boolean }>({});
+  const _navigate = useNavigate();
   const [readAnnotationModal, setReadAnnotationModal] = useState<{ [key: number]: boolean }>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(15); // Valor inicial de 15 itens por página
 
-  const openModal = (videoId: number, option: boolean) => {
-    option
-      ? setAnnotationModal(prevState => ({ ...prevState, [videoId]: true }))
-      : setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: true }));
+  const openModal = (videoId: number) => {
+    setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: true }));
   };
-  const closeModal = (videoId: number, option: boolean) => {
-    option
-      ? setAnnotationModal(prevState => ({ ...prevState, [videoId]: false }))
-      : setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: false }));
+  const closeModal = (videoId: number) => {
+    setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: false }));
   };
 
   const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Navigate to='/login' />
+  if (!isAuthenticated) return <Navigate to='/login' />;
+
+  // Calcular os índices de início e fim com base na página atual e itens por página
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedFiles = files.slice(startIndex, endIndex);
+
+  // Funções para mudar de página
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const totalPages = Math.ceil(files.length / itemsPerPage);
+
   return (
     <div className='flex-col h-screen w-screen overflow-x-hidden'>
       <Header />
       <div className='flex justify-center'>
         <SearchBar onClick={() => console.log('search')} />
       </div>
+      {/* Grid paginado */}
       <div className="grid grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))] gap-4 m-10">
-        {files.map((file, i) => (
+        {paginatedFiles.map((file, i) => (
           <div key={i}>
-            <Card fileInfo={file} onAnnotate={() => { openModal(file.fileId, true) }} onVisualize={() => { openModal(file.fileId, false) }} />
+            <Card fileInfo={file} onAnnotate={() => _navigate(`annotate/${file.fileId}`)} onVisualize={() => { openModal(file.fileId) }} />
             {readAnnotationModal[file.fileId] && (
-              <div><CustomModal url={file.videoUrl} option={false} isOpen={true} onClose={() => closeModal(file.fileId, false)} /></div>
-            )}
-            {annotationModal[file.fileId] && (
-              <div><CustomModal url={file.videoUrl} option={true} isOpen={true} onClose={() => closeModal(file.fileId, true)} /></div>
+              <div><CustomModal url={file.videoUrl} isOpen={true} onClose={() => closeModal(file.fileId)} /></div>
             )}
           </div>
         ))}
+      </div>
+      <div className="flex items-center justify-center my-8 space-x-6">
+        {/* Botões de paginação */}
+        <div className="flex flex-wrap space-x-2">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button key={index} onClick={() => handlePageChange(index + 1)} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-800 hover:bg-blue-500 hover:text-white'}`}>
+              {index + 1}
+            </button>
+          ))}
+        </div>
+
+        {/* Seletor para itens por página */}
+        <div className="relative inline-block">
+          <select
+            value={itemsPerPage}
+            onChange={(e) => setItemsPerPage(Number(e.target.value))}
+            className="appearance-none bg-gray-800 text-white py-2 px-4 pr-8 rounded-lg border border-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value={15}>15 por página</option>
+            <option value={30}>30 por página</option>
+            <option value={60}>60 por página</option>
+            <option value={120}>120 por página</option>
+          </select>
+          <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </span>
+        </div>
       </div>
 
     </div>
   );
 }
-// { albums?.map((album, i) => (
-//   <div key={i}>
-//     <div style={{'--bg-fundo': `url(${album.images[0].url})`} as React.CSSProperties} className="bg-[image:var(--bg-fundo)] bg-cover bg-no-repeat w-[220px] h-[220px] rounded-md hover:scale-[1.15] transition">
-//       <div onClick={() => openModal(album.name)} className="flex flex-col h-full justify-between items-center backdrop-brightness-50 shadow-white">
-//         <div />
-//         <h1 className="text-2xl font-semibold text-center text-white line-clamp-2 max-w-full px-3">{album.name}</h1>
-//         <div className="flex justify-between items-center w-full mb-2">
-//           <div></div>
-//           <h1 className="text-2xl font-semibold text-center text-white mr-4">R$ {album.value}</h1>
-//         </div>
-//       </div>
-//     </div>
-//     {albumModals[album.name] && (
-//       <div><CustomModal isOpen={true} album={album} onClose={() => closeModal(album.name)} /></div>
-//     )}
-//   </div>
-// ))}
