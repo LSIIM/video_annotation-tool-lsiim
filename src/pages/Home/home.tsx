@@ -4,7 +4,7 @@ import '../../global.css';
 import { useAuth } from '@/hooks/UseAuth';
 import Card from '@/components/Card';
 import CustomModal from '@/components/CustomModal';
-import files from '@/lsiim/files.json';
+import files from '@/../public/lsiim/files.json';
 import Header from '../../components/Header';
 import SearchBar from '@/components/SearchBar';
 

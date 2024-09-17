@@ -1,6 +1,6 @@
 import FrameController from "@/components/FrameController";
 import Header from "@/components/Header"
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function Annotate() {
@@ -10,7 +10,23 @@ export default function Annotate() {
     const [initialFrame, setInitialFrame] = useState(1);
     const [endFrame, setEndFrame] = useState(1);
     const _navigate = useNavigate();
-    const src = "../../videos/14/record.mp4";
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const fps = 30;
+
+    useEffect(() => {
+        const video = videoRef.current;
+        if (video) {
+            const updateFrame = () => {
+                const currentTime = video.currentTime;
+                const frame = Math.floor(currentTime * fps);
+                setCurrentFrame(frame);
+            };
+            video.addEventListener('timeupdate', updateFrame);
+            return () => {
+                video.removeEventListener('timeupdate', updateFrame);
+            };
+        }
+    }, []);
 
     function handleLeftOnClick(option: string) {
         if (option == "initial") {
@@ -23,6 +39,9 @@ export default function Annotate() {
             if (aux < 1) aux = 1;
             if (aux < initialFrame) aux = initialFrame + 1;
             setEndFrame(aux);
+        }
+        else if(option == "setInitial"){
+            if(endFrame>currentFrame) setInitialFrame(currentFrame);
         }
     }
 
@@ -38,25 +57,33 @@ export default function Annotate() {
             if (aux > totalFrames) aux = totalFrames;
             setEndFrame(aux);
         }
+        else if(option == "setEnd"){
+            if(initialFrame<currentFrame) setEndFrame(currentFrame);
+        }
     }
     
     return (
-        <div className='flex-col h-screen w-screen'>
-            <Header />
-            <div id="video-controller" className="flex">
-                <video id="my-video" controls src={src} className="max-w-2xl max-h-2xl object-cover rounded-l-lg" />
-                <div className="flex flex-row">
-                    <div className="flex flex-col">
-                        <FrameController text="Frame Inicial" index={initialFrame} leftOnClick={() => { handleLeftOnClick("initial") }} rightOnClick={() => { handleRightOnClick("initial") }} />
-                        <p>Frame Atual: {currentFrame}</p>
-                        <FrameController text="Frame Final" index={endFrame} leftOnClick={() => { handleLeftOnClick("end") }} rightOnClick={() => { handleRightOnClick("end") }} />
-                    </div>
-                </div>
-            </div>
-            <div className='flex'>
-                <button onClick={() => _navigate('/')} className="bg-gray-200/50 rounded-[30px] h-10 hover:bg-gray-500 text-2xl">Voltar</button>
-                <button onClick={() => { }} className="bg-green-600/70 rounded-[30px] h-10 hover:bg-green-800 text-2xl">Salvar</button>
+        <div className='flex-col h-screen w-screen bg-gray-900 text-white'>
+    <Header />
+    <div className="flex justify-center my-8">
+        <div id="video-controller" className="flex flex-col items-center">
+            <video ref={videoRef} id="my-video" controls src={`/videos/${id}/record.mp4`} className="w-[80%] h-auto rounded-lg shadow-lg mb-4" />
+            <div className="flex flex-col items-center">
+                <FrameController text="Frame Inicial" index={initialFrame} leftOnClick={() => { handleLeftOnClick("initial") }} rightOnClick={() => { handleRightOnClick("initial") }} />
+                <FrameController text="Frame Atual" index={currentFrame} leftOnClick={() => { handleLeftOnClick("setInitial") }} rightOnClick={() => { handleRightOnClick("setEnd") }} />
+                <FrameController text="Frame Final" index={endFrame} leftOnClick={() => { handleLeftOnClick("end") }} rightOnClick={() => { handleRightOnClick("end") }} />
             </div>
         </div>
+    </div>
+    <div className='flex justify-center space-x-4'>
+        <button onClick={() => _navigate('/')} className="bg-gray-700 hover:bg-gray-500 text-white rounded-lg px-6 py-2 text-xl">
+            Voltar
+        </button>
+        <button onClick={() => { }} className="bg-green-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-xl">
+            Salvar
+        </button>
+    </div>
+</div>
+
     );
 }

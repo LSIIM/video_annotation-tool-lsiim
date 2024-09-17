@@ -6,8 +6,16 @@ interface Props {
 }
 
 export default function FrameController({ text, index, leftOnClick, rightOnClick}: Props) {
-    const back = "<< |";
-    const forward = "| >>";
+    let back; 
+    let forward;
+    if(text=="Frame Atual"){
+        back = "^ |";
+        forward = "| v";
+    }
+    else{
+        back = "<< |";
+        forward = "| >>";
+    }
     return (
         <div className="flex flex-row bg-customGray rounded-[20px] px-2 m-2">
             <button onClick={leftOnClick} className="h-10 text-sm">{back}</button>

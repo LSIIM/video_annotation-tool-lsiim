@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
-import FrameController from './FrameController';
 // import Input from './Input';
 
 interface Props {
