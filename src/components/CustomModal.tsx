@@ -36,6 +36,7 @@ export default function CustomModal({ isOpen, id, onClose }: Props) {
     }
   }, [id, isOpen]);
 
+  console.log(annotations);
   return (
     <Modal 
       isOpen={isOpen} 
@@ -47,9 +48,9 @@ export default function CustomModal({ isOpen, id, onClose }: Props) {
         <AnnotationContainer annotations={annotations}/>
       </div>
 
-      <div className='flex space-x-4 mt-4'>
+      <div className='flex space-x-4 mt-4 mr-2'>
         <button onClick={onClose} className="bg-gray-400 rounded-[30px] hover:bg-gray-600 px-6 py-2 text-xl">Fechar</button>
-        <button onClick={() => _navigate(`/annotate/${id}`)} className="bg-green-600 rounded-[30px] hover:bg-green-800 px-6 py-2 text-xl">Anotar</button>
+        <button onClick={() => _navigate(`/annotate/${id}`)} className="bg-green-500/90 rounded-[30px] hover:bg-green-800 px-6 py-2 text-xl">Anotar</button>
       </div>
     </Modal>
   );
