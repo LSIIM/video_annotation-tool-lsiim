@@ -21,9 +21,6 @@ export default function Home() {
     setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: false }));
   };
 
-  const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Navigate to='/login' />;
-
   // Calcular os índices de início e fim com base na página atual e itens por página
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
@@ -48,7 +45,7 @@ export default function Home() {
           <div key={i}>
             <Card fileInfo={file} onAnnotate={() => _navigate(`annotate/${file.fileId}`)} onVisualize={() => { openModal(file.fileId) }} />
             {readAnnotationModal[file.fileId] && (
-              <div><CustomModal url={file.videoUrl} isOpen={true} onClose={() => closeModal(file.fileId)} /></div>
+              <div><CustomModal id={file.fileId} isOpen={true} onClose={() => closeModal(file.fileId)} /></div>
             )}
           </div>
         ))}

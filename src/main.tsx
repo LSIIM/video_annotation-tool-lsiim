@@ -9,6 +9,7 @@ import ErrorPage from './pages/ErrorPage/errorPage';
 import About from './pages/About/about';
 import './global.css';
 import Annotate from './pages/Annotate/annotate';
+import { PrivateRoutes } from './utils/PrivateRoutes';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.Fragment>
@@ -18,17 +19,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <BrowserRouter>
         <Routes>
           <Route path='/login' index element={<Login />} />
-          <Route path='*' element={<ErrorPage />} />
-          <Route path='/' index element={<Home />} />
-          <Route path='/about' index element={<About />} />
-          <Route path='/annotate/:id' index element={<Annotate />} />
           {/* <Route path='/signup' index element={<Signup />} /> */}
-          {/* <Route path='' element={<PrivateRoutes />}> */}
-            {/* <Route path='/myDiscs' element={<Discs />} /> */}
-            {/* <Route path='/dashboard' element={<Dashboard/>} /> */}
-            {/* <Route path='/wallet' element={<Wallet />} /> */}
-            {/* <Route path='/profile' element={<Profile />} /> */}
-          {/* </Route> */}
+          <Route path='' element={<PrivateRoutes />}>
+            <Route path='*' element={<ErrorPage />} />
+            <Route path='/' index element={<Home />} />
+            <Route path='/about' index element={<About />} />
+            <Route path='/annotate/:id' index element={<Annotate />} />
+          </Route>
         </Routes>
       </BrowserRouter>
       {/* REACT ROUTER */}

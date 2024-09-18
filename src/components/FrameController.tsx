@@ -1,3 +1,5 @@
+import { ArrowDown, ArrowUp, ChevronsLeft, ChevronsRight } from 'lucide-react';
+
 interface Props {
     text: string;
     index: number;
@@ -6,24 +8,21 @@ interface Props {
 }
 
 export default function FrameController({ text, index, leftOnClick, rightOnClick}: Props) {
-    let back; 
-    let forward;
-    if(text=="Frame Atual"){
-        back = "^ |";
-        forward = "| v";
-    }
-    else{
-        back = "<< |";
-        forward = "| >>";
-    }
     return (
         <div className="flex flex-row bg-customGray rounded-[20px] px-2 m-2">
-            <button onClick={leftOnClick} className="h-10 text-sm">{back}</button>
+            {text=="Frame Atual"?
+                <button onClick={leftOnClick} className="h-10 text-sm"><ArrowUp /></button>
+            :
+                <button onClick={leftOnClick} className="h-10 text-sm"><ChevronsLeft /></button>
+            }
             <div className="flex flex-row items-center">
-                <p>{text}:</p>
-                <p>{index}</p>
+                <p>{text + ": " + index}</p>
             </div>
-            <button onClick={rightOnClick} className="h-10 text-sm">{forward}</button>    
+            {text=="Frame Atual"?
+                <button onClick={rightOnClick} className="h-10 text-sm"><ArrowDown /></button>    
+            :
+                <button onClick={rightOnClick} className="h-10 text-sm"><ChevronsRight /></button>    
+            }
         </div>
     );
 }

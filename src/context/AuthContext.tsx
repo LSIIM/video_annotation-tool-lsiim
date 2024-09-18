@@ -20,19 +20,22 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
 
     useEffect(() => {
         const data: UserModel = JSON.parse(localStorage.getItem('@Auth.Data') || "{}");
-        if (data.id) {
-            setIsAuthenticated(true);
+        if (data.id !== undefined) {
             setUserData(data);
+            setIsAuthenticated(true);
         }
-        Logout();
     }, []);
+    
+    useEffect(() => {
+        console.log("info AQUI: ", isAuthenticated);
+    }, [isAuthenticated]);
 
     const Login = useCallback((password: string) => {
         if (password != "lsiimsim") {
             return "Senha inválida";
         }
         localStorage.setItem("@Auth.Token", JSON.stringify(btoa("LSIIM/UFSC:lsiimsim")));
-        localStorage.setItem("@Auth.Data", JSON.stringify({ name: "LSIIM" }));
+        localStorage.setItem("@Auth.Data", JSON.stringify({ id:1, name: "LSIIM" }));
         setUserData({id: 1, name: "LSIIM" });
         setIsAuthenticated(true);
     }, []);
@@ -41,7 +44,6 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         localStorage.removeItem('@Auth.Data');
         localStorage.removeItem('@Auth.Token');
         setIsAuthenticated(false);
-        return <Navigate to='/' />;
     }, []);
 
     return (
