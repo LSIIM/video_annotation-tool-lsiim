@@ -21,19 +21,26 @@ export default function Annotate() {
     const _navigate = useNavigate();
     const videoRef = useRef<HTMLVideoElement>(null);
     const fps = 30;
-    const options = ["fixação", "limitação", "disparidade"];
+    const options = ["Selecione uma opção", "Fixação", "Limitação", "Disparidade"];
     const [selectedOption, setSelectedOption] = useState(options[0]); // Estado para a opção selecionada
 
     useEffect(() => {
         const video = videoRef.current;
         if (video) {
+            const handleLoadedMetadata = () => {
+                const durationInSeconds = video.duration;
+                const totalFrames = Math.floor(durationInSeconds * fps);
+                setTotalFrames(totalFrames);
+            };
             const updateFrame = () => {
                 const currentTime = video.currentTime;
                 const frame = Math.floor(currentTime * fps);
                 setCurrentFrame(frame);
             };
+            video.addEventListener('loadedmetadata', handleLoadedMetadata);
             video.addEventListener('timeupdate', updateFrame);
             return () => {
+                video.removeEventListener('loadedmetadata', handleLoadedMetadata);
                 video.removeEventListener('timeupdate', updateFrame);
             };
         }
@@ -67,9 +74,7 @@ export default function Annotate() {
             if (aux < initialFrame) aux = initialFrame + 1;
             setEndFrame(aux);
         }
-        else if (option == "setInitial") {
-            if (endFrame > currentFrame) setInitialFrame(currentFrame);
-        }
+        else if (option == "setInitial") if (endFrame > currentFrame) setInitialFrame(currentFrame);
     }
 
     function handleRightOnClick(option: string) {
@@ -83,12 +88,10 @@ export default function Annotate() {
             if (aux > totalFrames) aux = totalFrames;
             setEndFrame(aux);
         }
-        else if (option == "setEnd") {
-            if (initialFrame < currentFrame) setEndFrame(currentFrame);
-        }
+        else if (option == "setEnd") if (initialFrame < currentFrame) setEndFrame(currentFrame);
     }
 
-    function handleSaveAnnotation() {
+    function handleAddAnnotation() {
         const newAnnotation: Annotation = {
             frames: [initialFrame, endFrame],
             description: selectedOption
@@ -97,9 +100,9 @@ export default function Annotate() {
         setAnnotations((prevAnnotations) => [...prevAnnotations, newAnnotation]);
         toast.success("Anotação salva com sucesso!");
 
-        // Simulação de save (substitua pela lógica de API, se houver)
-        const updatedAnnotations = [...annotations, newAnnotation];
-        setAnnotations(updatedAnnotations);
+        // // Simulação de save (substituir pela lógica de API)
+        // const updatedAnnotations = [...annotations, newAnnotation];
+        // setAnnotations(updatedAnnotations);
     }
 
     function handleRemoveAnnotation(index: number) {
@@ -123,12 +126,11 @@ export default function Annotate() {
             .catch(() => toast.error('Erro ao remover anotação.'));
     }
 
-    //TODO Arrumar a função de "salvar" arquivo (tá "salvando" 1 anotação só)
     return (
-        <div className='flex-col h-screen w-full bg-gray-900 text-white'>
+        <div className='flex-col h-screen w-screen overflow-auto bg-gray-900 text-white'>
             <Header />
-            <div className="flex justify-center my-8">
-                <div id="video-controller" className="flex flex-col items-center w-[65%]">
+            <div className="flex justify-center my-8 w-full">
+                <div id="video-controller" className="flex flex-col items-center w-[50%] h-auto">
                     <video ref={videoRef} id="my-video" controls src={`/videos/${id}/record.mp4`} className="w-[75%] h-auto rounded-lg shadow-lg mb-4" />
                     <div id="actions-container" className="flex space-x-8">
                         <div id="frame-button-container">
@@ -141,7 +143,10 @@ export default function Annotate() {
                                 <button onClick={() => _navigate('/')} className="bg-gray-700 hover:bg-gray-500 text-white rounded-lg px-6 py-2 text-xl">
                                     Voltar
                                 </button>
-                                <button onClick={handleSaveAnnotation} className="bg-green-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-xl">
+                                <button onClick={handleAddAnnotation} className="bg-blue-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-xl">
+                                    Adicionar
+                                </button>
+                                <button onClick={() => { }} className="bg-green-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-xl">
                                     Salvar
                                 </button>
                             </div>
