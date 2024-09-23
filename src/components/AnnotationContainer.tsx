@@ -7,14 +7,23 @@ interface Annotation {
 
 interface Props {
     annotations: Annotation[];
+    option: string;
+    onRemove: (index: number) => void;
   }
 //TODO FUNÇÃO DE DELETAR A ANOTAÇÃO 
-export default function AnnotationContainer({annotations}: Props) {
+export default function AnnotationContainer({ annotations, option, onRemove }: Props) {
+    if(annotations == undefined){
+        return(<p>Não há anotações registradas.</p>)
+    }
+    function removeAnnotation(index: number) {
+        onRemove(index);
+    };
+
     return (
-        <div className="flex flex-col m-2 w-[15%]">
+        <div className="flex flex-col m-2">
             <h2 className="text-xl font-bold mb-4">Anotações</h2>
-            <div className="overflow-y-auto max-h-60">
-                {annotations != (undefined || null) ? (
+            <div className="overflow-y-auto max-h-96 md:max-h-48">
+                {annotations.length > 0 ? (
                     annotations.map((annotation, index) => (
                         <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex justify-between">
                             <div>
@@ -25,7 +34,11 @@ export default function AnnotationContainer({annotations}: Props) {
                                     <p>Frame inicial: {annotation.frames[0]} | Frame final: {annotation.frames[1]}</p>
                                 )}
                             </div>
-                            <button onClick={()=>{}}><Trash2 /></button>
+                            {option=="edit" && (
+                                <button onClick={() => removeAnnotation(index)}>
+                                    <Trash2 />
+                                </button>
+                            )}
                         </div>
                     ))
                 ) : (

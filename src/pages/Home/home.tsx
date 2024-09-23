@@ -12,35 +12,46 @@ export default function Home() {
   const _navigate = useNavigate();
   const [readAnnotationModal, setReadAnnotationModal] = useState<{ [key: number]: boolean }>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(15); // Valor inicial de 15 itens por página
+  const [itemsPerPage, setItemsPerPage] = useState(15);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredFiles, setFilteredFiles] = useState(files);
 
   const openModal = (videoId: number) => {
     setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: true }));
   };
+
   const closeModal = (videoId: number) => {
     setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: false }));
   };
 
-  // Calcular os índices de início e fim com base na página atual e itens por página
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedFiles = files.slice(startIndex, endIndex);
+  const paginatedFiles = filteredFiles.slice(startIndex, endIndex);
 
-  // Funções para mudar de página
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setCurrentPage(1);
+    if (term.trim() === "") {
+      setFilteredFiles(files);
+    } else {
+      const filtered = files.filter(file => file.babyName.toLowerCase().includes(term.toLowerCase()));
+      setFilteredFiles(filtered);
+    }
+  };
+
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
   };
 
-  const totalPages = Math.ceil(files.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredFiles.length / itemsPerPage);
 
   return (
     <div className='flex-col h-screen w-screen overflow-x-hidden'>
       <Header />
       <div className='flex justify-center'>
-        <SearchBar onClick={() => console.log('search')} />
+        <SearchBar onClick={handleSearch} />
       </div>
-      {/* Grid paginado */}
-      <div className="grid grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))] gap-4 m-10">
+      <div id="paging-grid" className="grid grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))] gap-4 m-10">
         {paginatedFiles.map((file, i) => (
           <div key={i}>
             <Card fileInfo={file} onAnnotate={() => _navigate(`annotate/${file.fileId}`)} onVisualize={() => { openModal(file.fileId) }} />
@@ -51,17 +62,14 @@ export default function Home() {
         ))}
       </div>
       <div className="flex items-center justify-center my-8 space-x-6">
-        {/* Botões de paginação */}
-        <div className="flex flex-wrap space-x-2">
+        <div id="paging-controller-container" className="flex flex-wrap space-x-2">
           {Array.from({ length: totalPages }, (_, index) => (
             <button key={index} onClick={() => handlePageChange(index + 1)} className={`px-4 py-2 rounded-lg transition-colors duration-200 ${currentPage === index + 1 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-800 hover:bg-blue-500 hover:text-white'}`}>
               {index + 1}
             </button>
           ))}
         </div>
-
-        {/* Seletor para itens por página */}
-        <div className="relative inline-block">
+        <div id="selector-container" className="relative inline-block">
           <select
             value={itemsPerPage}
             onChange={(e) => setItemsPerPage(Number(e.target.value))}
@@ -79,7 +87,6 @@ export default function Home() {
           </span>
         </div>
       </div>
-
     </div>
   );
 }

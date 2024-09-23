@@ -19,7 +19,6 @@ export default function CustomModal({ isOpen, id, onClose }: Props) {
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const _navigate = useNavigate();
 
-  // Carregar o arquivo JSON com base no id
   useEffect(() => {
     const loadAnnotations = async () => {
       try {
@@ -36,7 +35,6 @@ export default function CustomModal({ isOpen, id, onClose }: Props) {
     }
   }, [id, isOpen]);
 
-  console.log(annotations);
   return (
     <Modal 
       isOpen={isOpen} 
@@ -45,7 +43,7 @@ export default function CustomModal({ isOpen, id, onClose }: Props) {
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="video-controller" className="flex">
-        <AnnotationContainer annotations={annotations}/>
+        <AnnotationContainer annotations={annotations} onRemove={()=>{}} option="see"/>
       </div>
 
       <div className='flex space-x-4 mt-4 mr-2'>

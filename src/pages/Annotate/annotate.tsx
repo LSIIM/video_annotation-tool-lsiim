@@ -12,6 +12,8 @@ interface Annotation {
 
 export default function Annotate() {
     const { id } = useParams();
+    const [annotations, setAnnotations] = useState<Annotation[]>([]);
+    const [loading, setLoading] = useState(true);
     const [totalFrames, setTotalFrames] = useState(100);
     const [currentFrame, setCurrentFrame] = useState(1);
     const [initialFrame, setInitialFrame] = useState(1);
@@ -19,7 +21,6 @@ export default function Annotate() {
     const _navigate = useNavigate();
     const videoRef = useRef<HTMLVideoElement>(null);
     const fps = 30;
-    const [annotations, setAnnotations] = useState<Annotation[]>([]);
     const options = ["fixação", "limitação", "disparidade"];
     const [selectedOption, setSelectedOption] = useState(options[0]); // Estado para a opção selecionada
 
@@ -42,13 +43,16 @@ export default function Annotate() {
         const loadAnnotations = async () => {
             try {
                 const response = await fetch(`/videos/${id}/annotation.json`);
+                if (!response.ok) throw new Error("Arquivo não encontrado.");
                 const data = await response.json();
-                setAnnotations(data.annotations);
+                setAnnotations(data.annotations || []);
             } catch (error) {
-                toast.error("Erro ao carregar anotações.");
+                setAnnotations([]);
+                toast.error("Nenhuma anotação encontrada.");
+            } finally {
+                setLoading(false);
             }
         };
-
         loadAnnotations();
     }, [id]);
 
@@ -95,10 +99,33 @@ export default function Annotate() {
 
         // Simulação de save (substitua pela lógica de API, se houver)
         const updatedAnnotations = [...annotations, newAnnotation];
+        setAnnotations(updatedAnnotations);
     }
+
+    function handleRemoveAnnotation(index: number) {
+        const updatedAnnotations = annotations.filter((_, i) => i !== index);
+        setAnnotations(updatedAnnotations);
+
+        // Simulação de salvar a anotação removida (substituir com lógica de API)
+        fetch(`/videos/${id}/save-annotation`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ annotations: updatedAnnotations }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao salvar anotações.');
+                }
+                toast.success('Anotação removida com sucesso!');
+            })
+            .catch(() => toast.error('Erro ao remover anotação.'));
+    }
+
     //TODO Arrumar a função de "salvar" arquivo (tá "salvando" 1 anotação só)
     return (
-        <div className='flex-col h-screen w-screen bg-gray-900 text-white'>
+        <div className='flex-col h-screen w-full bg-gray-900 text-white'>
             <Header />
             <div className="flex justify-center my-8">
                 <div id="video-controller" className="flex flex-col items-center w-[65%]">
@@ -121,8 +148,8 @@ export default function Annotate() {
                         </div>
                         <div id="annotations-option-container" className="flex flex-col items-center mt-4">
                             <label htmlFor="annotation-options" className="mb-2">Selecione uma opção:</label>
-                            <select 
-                                id="annotation-options" 
+                            <select
+                                id="annotation-options"
                                 className="bg-gray-700 text-white rounded-lg px-4 py-2"
                                 value={selectedOption}
                                 onChange={(e) => setSelectedOption(e.target.value)}
@@ -134,7 +161,13 @@ export default function Annotate() {
                         </div>
                     </div>
                 </div>
-                <AnnotationContainer annotations={annotations} />
+                <div className="w-[20%]">
+                    {loading ? (
+                        <p>Carregando anotações...</p>
+                    ) : (
+                        <AnnotationContainer annotations={annotations} option="edit" onRemove={handleRemoveAnnotation} />
+                    )}
+                </div>
             </div>
         </div>
     );

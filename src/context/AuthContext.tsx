@@ -26,10 +26,6 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         }
     }, []);
     
-    useEffect(() => {
-        console.log("info AQUI: ", isAuthenticated);
-    }, [isAuthenticated]);
-
     const Login = useCallback((password: string) => {
         if (password != "lsiimsim") {
             return "Senha inválida";
