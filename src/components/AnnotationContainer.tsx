@@ -20,12 +20,12 @@ export default function AnnotationContainer({ annotations, option, onRemove }: P
     };
 
     return (
-        <div className="flex flex-col m-2">
+        <div className="flex flex-col ml-2 mt-2">
             <h2 className="text-xl font-bold mb-4">Anotações</h2>
             <div className="overflow-y-auto max-h-96">
                 {annotations.length > 0 ? (
                     annotations.map((annotation, index) => (
-                        <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex justify-between">
+                        <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex justify-between mr-2">
                             <div>
                                 <p className="font-semibold">{annotation.description}</p>
                                 {annotation.frames.length === 1 ? (

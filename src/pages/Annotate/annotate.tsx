@@ -92,6 +92,10 @@ export default function Annotate() {
     }
 
     function handleAddAnnotation() {
+        if (selectedOption === options[0]) {
+            toast.error("Selecione uma opção válida.");
+            return;
+        }
         const newAnnotation: Annotation = {
             frames: [initialFrame, endFrame],
             description: selectedOption

@@ -1,5 +1,6 @@
 import { UserModel } from "@/models/UserModel";
 import { createContext, useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Navigate } from "react-router-dom";
 
 interface AuthContextModel extends UserModel {
@@ -20,6 +21,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
 
     useEffect(() => {
         const data: UserModel = JSON.parse(localStorage.getItem('@Auth.Data') || "{}");
+        toast.success(data.id);
         if (data.id !== undefined) {
             setUserData(data);
             setIsAuthenticated(true);
