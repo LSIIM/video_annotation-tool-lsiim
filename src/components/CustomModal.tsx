@@ -36,14 +36,14 @@ export default function CustomModal({ isOpen, id, onClose }: Props) {
   }, [id, isOpen]);
 
   return (
-    <Modal 
-      isOpen={isOpen} 
-      onRequestClose={onClose} 
-      className="flex-col justify-center items-center bg-slate-500 rounded-lg focus:outline-none" 
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      className="flex-col justify-center items-center bg-slate-500 rounded-lg focus:outline-none"
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="video-controller" className="flex">
-        <AnnotationContainer annotations={annotations} onRemove={()=>{}} option="see"/>
+        <AnnotationContainer annotations={annotations} onRemove={() => { }} option="see" />
       </div>
 
       <div className='flex space-x-4 m-2'>

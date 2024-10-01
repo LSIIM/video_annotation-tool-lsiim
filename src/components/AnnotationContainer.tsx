@@ -20,7 +20,7 @@ export default function AnnotationContainer({ annotations, option, onRemove }: P
     };
 
     return (
-        <div className="flex flex-col ml-2 mt-2">
+        <div className="flex flex-col mt-2 mr-2">
             <h2 className="text-xl font-bold mb-4">Anotações</h2>
             <div className="overflow-y-auto max-h-96">
                 {annotations.length > 0 ? (

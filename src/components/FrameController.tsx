@@ -16,7 +16,7 @@ export default function FrameController({ text, index, leftOnClick, rightOnClick
                 <button onClick={leftOnClick} className="h-10 text-sm"><ChevronsLeft /></button>
             }
             <div className="flex flex-row items-center">
-                <p>{text + ": " + index}</p>
+                <p className='text-sm'>{text + ": " + index}</p>
             </div>
             {text=="Frame Atual"?
                 <button onClick={rightOnClick} className="h-10 text-sm"><ArrowDown /></button>    
