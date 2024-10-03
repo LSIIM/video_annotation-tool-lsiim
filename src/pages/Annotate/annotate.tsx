@@ -20,6 +20,8 @@ export default function Annotate() {
     const [endFrame, setEndFrame] = useState(1);
     const _navigate = useNavigate();
     const videoRef = useRef<HTMLVideoElement>(null);
+    const videoRefInicial = useRef<HTMLVideoElement>(null);
+    const videoRefFinal = useRef<HTMLVideoElement>(null);
     const fps = 30;
     const options = [
         { nome: "Selecione uma opção", flag: "continuous" },
@@ -29,19 +31,14 @@ export default function Annotate() {
         { nome: "Teste", flag: "pontual" }
     ];
 
-    const [selectedOption, setSelectedOption] = useState(options[0].nome); // Estado para a opção selecionada
-    const [selectedFlag, setSelectedFlag] = useState<string>("continuous"); // Estado para a flag selecionada
-
-    // Função para lidar com a mudança de opção
+    const [selectedOption, setSelectedOption] = useState(options[0].nome);
+    const [selectedFlag, setSelectedFlag] = useState<string>("continuous");
     function handleOptionChange(e: React.ChangeEvent<HTMLSelectElement>) {
         const selectedNome = e.target.value;
         setSelectedOption(selectedNome);
 
-        // Encontrar o objeto correspondente ao nome selecionado
         const selectedObject = options.find(option => option.nome === selectedNome);
-        if (selectedObject) {
-            setSelectedFlag(selectedObject.flag);
-        }
+        if (selectedObject) setSelectedFlag(selectedObject.flag);
     }
 
     useEffect(() => {
@@ -65,6 +62,22 @@ export default function Annotate() {
             };
         }
     }, []);
+
+    useEffect(() => {
+        const video = videoRefInicial.current;
+        if (video) {
+            const timeInSeconds = initialFrame / 30;
+            video.currentTime = timeInSeconds;
+        }
+    }, [initialFrame]);
+
+    useEffect(() => {
+        const video = videoRefFinal.current;
+        if (video) {
+            const timeInSeconds = endFrame / 30;
+            video.currentTime = timeInSeconds;
+        }
+    }, [endFrame]);
 
     useEffect(() => {
         const loadAnnotations = async () => {
@@ -118,7 +131,7 @@ export default function Annotate() {
     }
 
     function handleAddAnnotation() {
-        if (selectedOption === options[0]) {
+        if (selectedOption === options[0].nome) {
             toast.error("Selecione uma opção válida.");
             return;
         }
@@ -160,83 +173,76 @@ export default function Annotate() {
         <div className='flex-col h-screen w-screen overflow-auto bg-gray-900 text-white'>
             <Header />
             <div className="flex justify-center my-4 w-full h-[85%]">
-                <div className="w-[70%] flex justify-center">
-                    <div className="w-[70%] flex justify-center">
-                        {selectedFlag === 'continuous' ? (
-                            <div id="video-controller" className="flex flex-col items-center">
-                                <video ref={videoRef} id="my-video" controls src={`/videos/${id}/record.mp4`} className="w-[60%] h-auto rounded-lg shadow-lg mb-4" />
-                                <div id="actions-container" className="flex space-x-8">
-                                    <div id="frame-button-container">
-                                        <div className="flex ">
-                                            <div id="controller-container" className="flex flex-col items-center">
-                                                <FrameController text="Frame Inicial" index={initialFrame} leftOnClick={() => { handleLeftOnClick("initial") }} rightOnClick={() => { handleRightOnClick("initial") }} />
-                                                <FrameController text="Frame Atual" index={currentFrame} leftOnClick={() => { handleLeftOnClick("setInitial") }} rightOnClick={() => { handleRightOnClick("setEnd") }} />
-                                                <FrameController text="Frame Final" index={endFrame} leftOnClick={() => { handleLeftOnClick("end") }} rightOnClick={() => { handleRightOnClick("end") }} />
+                <div className="flex justify-center w-[70%]">
+                    {selectedFlag === 'continuous' ? (
+                        <>
+                            <div className="w-[15%] flex-col">
+                                <video ref={videoRefInicial} src={`/videos/${id}/record.mp4`} className="w-full rounded-lg shadow-lg mb-4" />
+                                <FrameController showButton text="Frame Inicial" index={initialFrame} leftOnClick={() => { handleLeftOnClick("initial") }} rightOnClick={() => { handleRightOnClick("initial") }} />
+                            </div>
+                            <div className="w-[60%] flex justify-center">
+                                <div id="video-controller" className="flex flex-col items-center">
+                                    <video ref={videoRef} id="my-video" controls src={`/videos/${id}/record.mp4`} className="w-[60%] h-auto rounded-lg shadow-lg mb-4" />
+                                    <FrameController showButton text="Frame Atual" index={currentFrame} leftOnClick={() => { handleLeftOnClick("setInitial") }} rightOnClick={() => { handleRightOnClick("setEnd") }} />
+                                    <div id="actions-container" className="flex space-x-8">
+                                        <div id="frame-button-container">
+                                            <div className="flex">
+                                                <div id="annotations-option-container" className="flex flex-col items-center mt-4">
+                                                    <label htmlFor="annotation-options" className="mb-2">Selecione uma opção:</label>
+                                                    <select id="annotation-options" className="bg-gray-700 text-white rounded-lg px-4 py-2" value={selectedOption} onChange={handleOptionChange}>
+                                                        {options.map((option, index) => (
+                                                            <option key={index} value={option.nome}>{option.nome}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <div id="annotations-option-container" className="flex flex-col items-center mt-4">
-                                                <label htmlFor="annotation-options" className="mb-2">Selecione uma opção:</label>
-                                                <select
-                                                    id="annotation-options"
-                                                    className="bg-gray-700 text-white rounded-lg px-4 py-2"
-                                                    value={selectedOption}
-                                                    onChange={handleOptionChange}
-                                                >
-                                                    {options.map((option, index) => (
-                                                        <option key={index} value={option.nome}>{option.nome}</option>
-                                                    ))}
-                                                </select>
-
+                                            <div id="button-container" className='flex justify-center space-x-4 mt-4'>
+                                                <button onClick={() => _navigate('/')} className="bg-gray-700 hover:bg-gray-500 text-white rounded-lg px-6 py-2 text-md">
+                                                    Voltar
+                                                </button>
+                                                <button onClick={handleAddAnnotation} className="bg-blue-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md">
+                                                    Adicionar
+                                                </button>
                                             </div>
-                                        </div>
-                                        <div id="button-container" className='flex justify-center space-x-4 mt-4'>
-                                            <button onClick={() => _navigate('/')} className="bg-gray-700 hover:bg-gray-500 text-white rounded-lg px-6 py-2 text-md">
-                                                Voltgrehyjyshtaar
-                                            </button>
-                                            <button onClick={handleAddAnnotation} className="bg-blue-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md">
-                                                Adicionar
-                                            </button>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
-                        ) : (
-                            <div id="video-controller" className="flex flex-col items-center">
-                                <video ref={videoRef} id="my-video" controls src={`/videos/${id}/record.mp4`} className="w-[60%] h-auto rounded-lg shadow-lg mb-4" />
-                                <div id="actions-container" className="flex space-x-8">
-                                    <div id="frame-button-container">
-                                        <div className="flex ">
-                                            <div id="controller-container" className="flex flex-col items-center">
-                                                <FrameController text="Frame Atual" index={currentFrame} leftOnClick={() => { handleLeftOnClick("setInitial") }} rightOnClick={() => { handleRightOnClick("setEnd") }} />
-                                            </div>
-                                            <div id="annotations-option-container" className="flex flex-col items-center mt-4">
-                                                <label htmlFor="annotation-options" className="mb-2">Selecione uma opção:</label>
-                                                <select
-                                                    id="annotation-options"
-                                                    className="bg-gray-700 text-white rounded-lg px-4 py-2"
-                                                    value={selectedOption}
-                                                    onChange={(e) => setSelectedOption(e.target.value)}
-                                                >
-                                                    {options.map((option, index) => (
-                                                        <option key={index} value={option}>{option}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
+                            <div className="w-[15%]">
+                                <video ref={videoRefFinal} src={`/videos/${id}/record.mp4`} className="w-full rounded-lg shadow-lg mb-4" />
+                                <FrameController showButton text="Frame Final" index={endFrame} leftOnClick={() => { handleLeftOnClick("end") }} rightOnClick={() => { handleRightOnClick("end") }} />
+                            </div>
+                        </>
+                    ) : (
+                        <div id="video-controller" className="flex flex-col items-center">
+                            <video ref={videoRef} id="my-video" controls src={`/videos/${id}/record.mp4`} className="w-[60%] h-auto rounded-lg shadow-lg mb-4" />
+                            <div id="actions-container" className="flex space-x-8">
+                                <div id="frame-button-container">
+                                    <div className="flex-col">
+                                        <div id="controller-container" className="flex flex-col items-center">
+                                            <FrameController text="Frame Atual" index={currentFrame} showButton={false} />
                                         </div>
-                                        <div id="button-container" className='flex justify-center space-x-4 mt-4'>
-                                            <button onClick={() => _navigate('/')} className="bg-gray-700 hover:bg-gray-500 text-white rounded-lg px-6 py-2 text-md">
-                                                Voltar
-                                            </button>
-                                            <button onClick={handleAddAnnotation} className="bg-blue-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md">
-                                                Adicionar
-                                            </button>
+                                        <div id="annotations-option-container" className="flex flex-col items-center mt-4">
+                                            <label htmlFor="annotation-options" className="mb-2">Selecione uma opção:</label>
+                                            <select id="annotation-options" className="bg-gray-700 text-white rounded-lg px-4 py-2" value={selectedOption} onChange={handleOptionChange}>
+                                                {options.map((option, index) => (
+                                                    <option key={index} value={option.nome}>{option.nome}</option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
-
+                                    <div id="button-container" className='flex justify-center space-x-4 mt-4'>
+                                        <button onClick={() => _navigate('/')} className="bg-gray-700 hover:bg-gray-500 text-white rounded-lg px-6 py-2 text-md">
+                                            Voltar
+                                        </button>
+                                        <button onClick={handleAddAnnotation} className="bg-blue-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md">
+                                            Adicionar
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
                 <div className="w-[25%]">
                     {loading ? (
