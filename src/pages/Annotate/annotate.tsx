@@ -61,7 +61,7 @@ export default function Annotate() {
                 video.removeEventListener('timeupdate', updateFrame);
             };
         }
-    }, []);
+    }, [selectedFlag]);
 
     useEffect(() => {
         const video = videoRefInicial.current;
@@ -143,17 +143,22 @@ export default function Annotate() {
             toast.error("A opção selecionada não é condizente com o intervalo selecionado.");
             return;
         }
-        const newAnnotation: Annotation = {
-            frames: [initialFrame, endFrame],
-            description: selectedOption
-        };
+        let newAnnotation: Annotation;
+        if (selectedFlag === 'pontual') {
+            newAnnotation = {
+                frames: [currentFrame],
+                description: selectedOption
+            };
+        }   
+        else{
+            newAnnotation = {
+                frames: [initialFrame, endFrame],
+                description: selectedOption
+            };
+        }
 
         setAnnotations((prevAnnotations) => [...prevAnnotations, newAnnotation]);
         toast.success("Anotação salva com sucesso!");
-
-        // // Simulação de save (substituir pela lógica de API)
-        // const updatedAnnotations = [...annotations, newAnnotation];
-        // setAnnotations(updatedAnnotations);
     }
 
     function handleRemoveAnnotation(index: number) {
