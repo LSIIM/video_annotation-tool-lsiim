@@ -44,6 +44,39 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         setIsAuthenticated(false);
     }, []);
 
+    const ApiLogin = useCallback(async (password: string) => {
+        try {
+            const response = await fetch("http://localhost:3000/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ password }),
+            });
+            console.log(response.status)
+            if (!response.ok) throw new Error("Erro ao se comunicar com o servidor");
+            const data = await response.json();
+            console.log(data);
+            if (data.success) {
+                localStorage.setItem("@Auth.Token", JSON.stringify(data.token));
+                localStorage.setItem("@Auth.Data", JSON.stringify({ id: data.id, name: data.name }));
+                setUserData({ id: data.id, name: data.name });
+                setIsAuthenticated(true);
+                console.log("CHEGOU AQUI");
+                toast.success("Login efetuado com sucesso!");
+                return;
+            } 
+            else {
+                toast.error(data.message || "Erro ao efetuar login.");
+                return data.message || "Erro ao efetuar login.";
+            }
+        } 
+        catch (error) {
+            toast.error("Erro ao efetuar login.");
+            console.error(error);
+        }
+    }, []);
+
     return (
         <AuthContext.Provider value={{ isAuthenticated: isAuthenticated, ...userData, login: Login, logout: Logout }}>
             {children}

@@ -1,5 +1,6 @@
+import toast from 'react-hot-toast';
+import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import '../../global.css';
 import { useAuth } from '@/hooks/UseAuth';
 import Card from '@/components/Card';
@@ -7,6 +8,7 @@ import CustomModal from '@/components/CustomModal';
 import files from '@/../public/lsiim/files.json';
 import Header from '../../components/Header';
 import SearchBar from '@/components/SearchBar';
+import { VideoInfoModel } from '@/models/VideoInfoModel';
 
 export default function Home() {
   const _navigate = useNavigate();
@@ -14,7 +16,25 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(15);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredFiles, setFilteredFiles] = useState(files);
+  const [filteredFiles, setFilteredFiles] = useState<[VideoInfoModel]>();
+
+  const fetchVideos = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/recording');
+      if (!response.ok) throw new Error("Erro ao buscar vídeos");
+
+      const data = await response.json();
+      setFilteredFiles(data);
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      toast.error("Erro ao buscar vídeos");
+      setFilteredFiles(files);
+    }
+  };
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
 
   const openModal = (videoId: number) => {
     setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: true }));

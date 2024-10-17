@@ -1,4 +1,8 @@
 ATIPICIDADES ACIMA DO ANOTAÇÕES NO MODAL
-ARRUMAR A MARGEM 
 JSONIFY NAS ANOTAÇÕES DE USE STATE
-VIDEOS ESTÁTICOS COM O FRAME INICIAL E FRAME FINAL
+
+ROTAS DA API:
+- Listar vídeos:            /recording
+- Info vídeo específico:    /recording/<id_gravacao>
+- json das anotações:       /recording/<id_gravacao>/annotation
+- salvar anotação:          /recording/<id_gravacao>/annotation

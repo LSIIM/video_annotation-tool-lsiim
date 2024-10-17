@@ -1,8 +1,11 @@
+export interface AnnotationModel {
+  frames: [number];
+  annotation_type: string;
+  comment: string;
+}
+
 export interface VideoInfoModel {
-    fileId: number;
-    babyName: string;
-    captureDate: number;
-    captureResponsible: string;
-    videoUrl: string;
-    annotationJson: string;
-  }
+  id_recording: number;
+  id_video_type: number;
+  annotation: [AnnotationModel];
+}
