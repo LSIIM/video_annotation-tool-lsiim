@@ -4,15 +4,12 @@ import Header from "@/components/Header";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from 'react-hot-toast';
-
-interface Annotation {
-    frames: number[];
-    description: string;
-}
+import { AnnotationModel, AtypicalityModel } from "@/models/models";
 
 export default function Annotate() {
     const { id } = useParams();
-    const [annotations, setAnnotations] = useState<Annotation[]>([]);
+    const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
+    const [atypicalities, setAtypicalities] = useState<AtypicalityModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [totalFrames, setTotalFrames] = useState(100);
     const [currentFrame, setCurrentFrame] = useState(1);
@@ -25,10 +22,9 @@ export default function Annotate() {
     const fps = 30;
     const options = [
         { nome: "Selecione uma opção", flag: "continuous" },
+        { nome: "Encontrou estímulo periférico", flag: "pontual" },
         { nome: "Fixação", flag: "continuous" },
-        { nome: "Limitação", flag: "continuous" },
-        { nome: "Disparidade", flag: "continuous" },
-        { nome: "Teste", flag: "pontual" }
+        { nome: "Rastreamento", flag: "continuous" },
     ];
 
     const [selectedOption, setSelectedOption] = useState(options[0].nome);
@@ -82,10 +78,10 @@ export default function Annotate() {
     useEffect(() => {
         const loadAnnotations = async () => {
             try {
-                const response = await fetch(`/videos/${id}/annotation.json`);
-                if (!response.ok) throw new Error("Arquivo não encontrado.");
-                const data = await response.json();
-                setAnnotations(data.annotations || []);
+                // const response = await fetch(`/videos/${id}/annotation.json`);
+                // if (!response.ok) throw new Error("Arquivo não encontrado.");
+                // const data = await response.json();
+                setAnnotations([]);//data.annotations || []);
             } catch (error) {
                 setAnnotations([]);
                 toast.error("Nenhuma anotação encontrada.");
@@ -143,22 +139,26 @@ export default function Annotate() {
             toast.error("A opção selecionada não é condizente com o intervalo selecionado.");
             return;
         }
-        let newAnnotation: Annotation;
+        let newAnnotation: AnnotationModel;
         if (selectedFlag === 'pontual') {
             newAnnotation = {
+                projectVideoTypeId: 1,
+                annotationTypeId: 1,
                 frames: [currentFrame],
                 description: selectedOption
             };
         }   
         else{
             newAnnotation = {
+                projectVideoTypeId: 1,
+                annotationTypeId: 1,
                 frames: [initialFrame, endFrame],
                 description: selectedOption
             };
         }
 
         setAnnotations((prevAnnotations) => [...prevAnnotations, newAnnotation]);
-        toast.success("Anotação salva com sucesso!");
+        toast.success("Anotação adicionada com sucesso!");
     }
 
     function handleRemoveAnnotation(index: number) {
@@ -181,6 +181,24 @@ export default function Annotate() {
             })
             .catch(() => toast.error('Erro ao remover anotação.'));
     }
+
+    async function handleSaveAnnotation(){
+        const response = await fetch(`localhost:3000/v1/recording/${id}/annotation`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                events: annotations,
+                atypicalities: atypicalities
+            })
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao salvar anotações.');
+            }
+            toast.success('Anotações salvas com sucesso!');
+        }).catch(() => toast.error('Erro ao salvar anotações.'));
+    };
 
     return (
         <div className='flex-col h-screen w-screen overflow-auto bg-gray-900 text-white'>
@@ -267,7 +285,7 @@ export default function Annotate() {
                             </div>
                             <div className="flex justify-between items-end">
                                 <div />
-                                <button onClick={() => { }} className="bg-green-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md mr-4">
+                                <button onClick={handleSaveAnnotation} className="bg-green-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md mr-4">
                                     Salvar
                                 </button>
                             </div>
