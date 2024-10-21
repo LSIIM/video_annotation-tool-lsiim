@@ -10,3 +10,9 @@ services:
       - .:/app
     environment:
       - NODE_ENV=production
+    networks:
+      - lsiimnet
+
+networks:
+  lsiimnet:
+    driver: bridge
