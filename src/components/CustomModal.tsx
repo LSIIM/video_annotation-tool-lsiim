@@ -13,6 +13,7 @@ interface Props {
   isOpen: boolean;
   id: number;
   onClose: () => void;
+  page?: string;
 }
 
 export default function CustomModal({ isOpen, id, onClose }: Props) {

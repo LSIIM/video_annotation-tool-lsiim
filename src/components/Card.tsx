@@ -1,4 +1,4 @@
-import { VideoInfoModel } from "@/models/VideoInfoModel";
+import { VideoInfoModel } from "@/models/videoInfoModel";
 
 interface Props {
     fileInfo: VideoInfoModel;

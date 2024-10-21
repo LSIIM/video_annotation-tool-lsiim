@@ -82,6 +82,7 @@ export default function Annotate() {
                 // if (!response.ok) throw new Error("Arquivo não encontrado.");
                 // const data = await response.json();
                 setAnnotations([]);//data.annotations || []);
+                setAtypicalities([]);//data.atypicalities || []);
             } catch (error) {
                 setAnnotations([]);
                 toast.error("Nenhuma anotação encontrada.");
@@ -94,12 +95,12 @@ export default function Annotate() {
 
     function handleLeftOnClick(option: string) {
         if (option == "initial") {
-            let aux = initialFrame - 5;
+            let aux = initialFrame - 1;
             if (aux < 1) aux = 1;
             setInitialFrame(aux);
         }
         else if (option == "end") {
-            let aux = endFrame - 5;
+            let aux = endFrame - 1;
             if (aux < 1) aux = 1;
             setEndFrame(aux);
         }
@@ -111,12 +112,12 @@ export default function Annotate() {
 
     function handleRightOnClick(option: string) {
         if (option == "initial") {
-            const aux = initialFrame + 5;
+            const aux = initialFrame + 1;
             // if (aux > endFrame) aux = endFrame;
             setInitialFrame(aux);
         }
         else if (option == "end") {
-            let aux = endFrame + 5;
+            let aux = endFrame + 1;
             if (aux > totalFrames) aux = totalFrames;
             setEndFrame(aux);
         }
@@ -182,8 +183,10 @@ export default function Annotate() {
             .catch(() => toast.error('Erro ao remover anotação.'));
     }
 
+    //function handleAddConclusion(){}
+
     async function handleSaveAnnotation(){
-        const response = await fetch(`localhost:3000/v1/recording/${id}/annotation`, {
+        await fetch(`localhost:3000/v1/recording/${id}/annotation`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -198,7 +201,7 @@ export default function Annotate() {
             }
             toast.success('Anotações salvas com sucesso!');
         }).catch(() => toast.error('Erro ao salvar anotações.'));
-    };
+    }
 
     return (
         <div className='flex-col h-screen w-screen overflow-auto bg-gray-900 text-white'>
@@ -286,7 +289,7 @@ export default function Annotate() {
                             <div className="flex justify-between items-end">
                                 <div />
                                 <button onClick={handleSaveAnnotation} className="bg-green-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md mr-4">
-                                    Salvar
+                                    Anotar Conclusões
                                 </button>
                             </div>
                         </div>

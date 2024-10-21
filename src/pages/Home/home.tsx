@@ -1,22 +1,26 @@
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import '../../global.css';
-import { useAuth } from '@/hooks/UseAuth';
+// import { useAuth } from '@/hooks/UseAuth';
 import Card from '@/components/Card';
 import CustomModal from '@/components/CustomModal';
-// import files from '@/../public/lsiim/files.json';
 import Header from '../../components/Header';
 import SearchBar from '@/components/SearchBar';
-import { RecordingModel, VideoInfoModel } from '@/models/models';
+import filesTest from '../../data/files.json';
+import { VideoInfoModel } from '@/models/videoInfoModel';
+// import { RecordingModel, VideoInfoModel } from '@/models/models';
 
 export default function Home() {
+  // const filesTest = process.env.FILES_TEST;
   const _navigate = useNavigate();
   const [readAnnotationModal, setReadAnnotationModal] = useState<{ [key: number]: boolean }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(15);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [files, setFiles] = useState<RecordingModel[]>([]);
+  // const [searchTerm, setSearchTerm] = useState("");
+  // const [files, setFiles] = useState<RecordingModel[]>([]);
+  const [files, setFiles] = useState<VideoInfoModel[]>(filesTest);
+
 
   const fetchVideos = async () => {
     try {
@@ -27,8 +31,10 @@ export default function Home() {
       setFiles(data);
     } catch (error) {
       console.error("Erro na requisição:", error);
-      toast.error("Erro ao buscar vídeos");
-      setFiles([]);
+      toast.error("Erro ao buscar vídeos na api");
+      toast.loading("Carregando vídeos locais de teste");
+      toast.success("Vídeos de teste carregados");
+      setFiles(filesTest);
     }
   };
 
@@ -46,18 +52,18 @@ export default function Home() {
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  // const paginatedFiles = filteredFiles.slice(startIndex, endIndex);
+  const paginatedFiles = filesTest.slice(startIndex, endIndex);
 
-  const handleSearch = (term: string) => {
-    // setSearchTerm(term);
-    // setCurrentPage(1);
-    // if (term.trim() === "") {
-    //   setFilteredFiles(files);
-    // } else {
-    //   const filtered = files.filter(file => file.babyName.toLowerCase().includes(term.toLowerCase()));
-    //   setFilteredFiles(filtered);
-    // }
-  };
+  // const handleSearch = (term: string) => {
+  //   setSearchTerm(term);
+  //   setCurrentPage(1);
+  //   if (term.trim() === "") {
+  //     setFilteredFiles(files);
+  //   } else {
+  //     const filtered = files.filter(file => file.babyName.toLowerCase().includes(term.toLowerCase()));
+  //     setFilteredFiles(filtered);
+  //   }
+  // };
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -69,16 +75,16 @@ export default function Home() {
     <div className='flex-col h-screen w-screen overflow-x-hidden'>
       <Header />
       <div className='flex justify-center'>
-        <SearchBar onClick={handleSearch} />
+        <SearchBar onClick={()=>{}} />
       </div>
       {files.length > 0 ? (
         <div>
           <div id="paging-grid" className="grid grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))] gap-4 m-10">
-            {files.map((file, i) => (
+            {paginatedFiles.map((file, i) => (
               <div key={i}>
-                <Card fileInfo={file} onAnnotate={() => _navigate(`annotate/${file.babyId}`)} onVisualize={() => { openModal(file.babyId) }} />
-                {readAnnotationModal[file.babyId] && (
-                  <div><CustomModal id={file.babyId} isOpen={true} onClose={() => closeModal(file.babyId)} /></div>
+                <Card fileInfo={file} onAnnotate={() => _navigate(`annotate/${file.fileId}`)} onVisualize={() => { openModal(file.fileId) }} />
+                {readAnnotationModal[file.fileId] && (
+                  <div><CustomModal id={file.fileId} isOpen={true} onClose={() => closeModal(file.fileId)} /></div>
                 )}
               </div>
             ))}

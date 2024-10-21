@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/react.svg';
 import { useAuth } from '@/hooks/UseAuth';
 
 export default function Header() {
@@ -13,7 +12,7 @@ export default function Header() {
                 <div className='flex w-[15%]'>
                 </div>
                 <div className='ml-20 flex hover:opacity-50 cursor-default w-3/4 justify-center gap-2' onClick={() => _navigate('/')}>
-                    <img src={logo} alt="logo" />
+                    <img src='../assets/lsiim.png' alt="logo" />
                     <p className='text-2xl'>Ferramenta de Anotação de Vídeos do LSIIM/UFSC</p>
                 </div>
                 <div className='flex gap-2'>

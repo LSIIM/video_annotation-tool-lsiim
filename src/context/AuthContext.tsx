@@ -1,11 +1,11 @@
-import { UserModel } from "@/models/UserModel";
+import { UserModel } from "@/models/models";
 import { createContext, useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { Navigate } from "react-router-dom";
+// import { Navigate } from "react-router-dom";
 
 interface AuthContextModel extends UserModel {
     isAuthenticated: boolean;
-    login: (password: string) => Promise<string | void>;
+    login: (password: string) => string | void;
     logout: () => void;
 }
 
@@ -21,8 +21,8 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
 
     useEffect(() => {
         const data: UserModel = JSON.parse(localStorage.getItem('@Auth.Data') || "{}");
-        toast.success(data.id);
         if (data.id !== undefined) {
+            toast.success(data.id.toString());
             setUserData(data);
             setIsAuthenticated(true);
         }
@@ -44,38 +44,38 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         setIsAuthenticated(false);
     }, []);
 
-    const ApiLogin = useCallback(async (password: string) => {
-        try {
-            const response = await fetch("http://localhost:3000/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ password }),
-            });
-            console.log(response.status)
-            if (!response.ok) throw new Error("Erro ao se comunicar com o servidor");
-            const data = await response.json();
-            console.log(data);
-            if (data.success) {
-                localStorage.setItem("@Auth.Token", JSON.stringify(data.token));
-                localStorage.setItem("@Auth.Data", JSON.stringify({ id: data.id, name: data.name }));
-                setUserData({ id: data.id, name: data.name });
-                setIsAuthenticated(true);
-                console.log("CHEGOU AQUI");
-                toast.success("Login efetuado com sucesso!");
-                return;
-            } 
-            else {
-                toast.error(data.message || "Erro ao efetuar login.");
-                return data.message || "Erro ao efetuar login.";
-            }
-        } 
-        catch (error) {
-            toast.error("Erro ao efetuar login.");
-            console.error(error);
-        }
-    }, []);
+    // const ApiLogin = useCallback(async (password: string) => {
+    //     try {
+    //         const response = await fetch("http://localhost:3000/login", {
+    //             method: "POST",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //             },
+    //             body: JSON.stringify({ password }),
+    //         });
+    //         console.log(response.status)
+    //         if (!response.ok) throw new Error("Erro ao se comunicar com o servidor");
+    //         const data = await response.json();
+    //         console.log(data);
+    //         if (data.success) {
+    //             localStorage.setItem("@Auth.Token", JSON.stringify(data.token));
+    //             localStorage.setItem("@Auth.Data", JSON.stringify({ id: data.id, name: data.name }));
+    //             setUserData({ id: data.id, name: data.name });
+    //             setIsAuthenticated(true);
+    //             console.log("CHEGOU AQUI");
+    //             toast.success("Login efetuado com sucesso!");
+    //             return;
+    //         } 
+    //         else {
+    //             toast.error(data.message || "Erro ao efetuar login.");
+    //             return data.message || "Erro ao efetuar login.";
+    //         }
+    //     } 
+    //     catch (error) {
+    //         toast.error("Erro ao efetuar login.");
+    //         console.error(error);
+    //     }
+    // }, []);
 
     return (
         <AuthContext.Provider value={{ isAuthenticated: isAuthenticated, ...userData, login: Login, logout: Logout }}>

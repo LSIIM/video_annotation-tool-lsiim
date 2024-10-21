@@ -10,6 +10,9 @@ import About from './pages/About/about';
 import './global.css';
 import Annotate from './pages/Annotate/annotate';
 import { PrivateRoutes } from './utils/PrivateRoutes';
+// import * as dotenv from 'dotenv';
+
+// dotenv.config({ path: '.env' });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.Fragment>

@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/UseAuth';
 import { toast } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import logo from '../../assets/lsiim.svg';
+// import logo from '../../assets/lsiim.svg';
 
 export default function Login() {
   const [password, setPassword] = useState("");
@@ -43,7 +43,7 @@ export default function Login() {
         <div className="flex items-center justify-center h-screen backdrop-brightness-50 backdrop-blur-sm">
           <div className="flex max-w-[544px] bg-white p-10 rounded-md">
             <div className="flex flex-col items-center w-full gap-2">
-              <img src={logo} className="h-12" />
+              <img src='../assets/lsiim.png' className="h-12" />
               <h1 className="text-xl font-semibold">Acesse a ferramenta</h1>
               <form onSubmit={handleLogin} className="flex flex-col w-72">
                 <Input placeholder='Senha de Acesso do LSIIM' changeable={true} onChange={event => setPassword(event.target.value)} required type='password'>Senha:</Input>
