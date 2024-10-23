@@ -3,15 +3,17 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
+            args:
+                - VITE_API=http://172.29.207.16:5001
+                - VITE_VIDEOS_BASE_PATH=http=D:/drives/lsiim/laprem_dataset/recordings
         ports:
-            - "5173:${APP_PORT}"
+            - "5173:80"
         environment:
             - NODE_ENV=production
-            - API_URL=http://lsiim-docker-api:${API_PORT}
+            - VITE_API=http://172.29.207.16:5001
+            - VITE_VIDEOS_BASE_PATH=http=D:/drives/lsiim/laprem_dataset/recordings
         volumes:
             - .:/app
-        depends_on:
-            - api
         networks:
             - lsiimnet
 

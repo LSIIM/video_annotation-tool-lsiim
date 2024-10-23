@@ -26,7 +26,8 @@ export default function Home() {
   const fetchVideos = async () => {
     try {
       // const urlPath = `http://${API_IP}:${API_PORT}/v1/recording`;
-      const urlPath = `http://172.29.207.16:5001/v1/recording`;
+      const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
+      const urlPath = apiPath + `/v1/recording`;
       console.log("URLPATH", urlPath);
       const response = await fetch(urlPath);
       if (!response.ok) throw new Error("Erro ao buscar vídeos");

@@ -8,6 +8,9 @@ RUN npm install
 
 COPY . .
 
+ARG VITE_API
+ARG VITE_VIDEOS_BASE_PATH
+
 RUN npm run build
 
 # Etapa 2: Servir a aplicação

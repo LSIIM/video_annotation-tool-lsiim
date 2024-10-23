@@ -15,7 +15,8 @@ interface Props {
 export default function CustomModal({ isOpen, id, onClose }: Props) {
   const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
   const _navigate = useNavigate();
-  const urlPath = `http://172.29.207.16:5001/v1/recording/${id}/annotation`;
+  const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
+    const urlPath = apiPath + `/v1/recording/${id}/annotation`;
 
   useEffect(() => {
     const loadAnnotations = async () => {

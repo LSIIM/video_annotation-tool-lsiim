@@ -30,7 +30,8 @@ export default function Annotate() {
 
     const [selectedOption, setSelectedOption] = useState(options[0].nome);
     const [selectedFlag, setSelectedFlag] = useState<string>("continuous");
-    const urlPath = `http://172.29.207.16:5001/v1/recording/${id}/annotation`;
+    const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
+    const urlPath = apiPath + `/v1/recording/${id}/annotation`;
 
     function handleOptionChange(e: React.ChangeEvent<HTMLSelectElement>) {
         const selectedNome = e.target.value;
