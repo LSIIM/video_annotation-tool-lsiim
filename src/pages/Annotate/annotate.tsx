@@ -19,6 +19,7 @@ export default function Annotate() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const videoRefInicial = useRef<HTMLVideoElement>(null);
     const videoRefFinal = useRef<HTMLVideoElement>(null);
+    const API_PORT = import.meta.env.VITE_API_PORT || 5000;
     const fps = 30;
     const options = [
         { nome: "Selecione uma opção", flag: "continuous" },
@@ -29,6 +30,8 @@ export default function Annotate() {
 
     const [selectedOption, setSelectedOption] = useState(options[0].nome);
     const [selectedFlag, setSelectedFlag] = useState<string>("continuous");
+    const urlPath = `http://172.29.207.16:5001/v1/recording/${id}/annotation`;
+
     function handleOptionChange(e: React.ChangeEvent<HTMLSelectElement>) {
         const selectedNome = e.target.value;
         setSelectedOption(selectedNome);
@@ -79,9 +82,10 @@ export default function Annotate() {
         const loadAnnotations = async () => {
             try {
                 // const response = await fetch(`/videos/${id}/annotation.json`);
-                // if (!response.ok) throw new Error("Arquivo não encontrado.");
-                // const data = await response.json();
-                setAnnotations([]);//data.annotations || []);
+                const response = await fetch(urlPath);
+                if (!response.ok) throw new Error("Arquivo não encontrado.");
+                const data = await response.json();
+                setAnnotations(data);//data.annotations || []);
                 setAtypicalities([]);//data.atypicalities || []);
             } catch (error) {
                 setAnnotations([]);
@@ -91,7 +95,7 @@ export default function Annotate() {
             }
         };
         loadAnnotations();
-    }, [id]);
+    }, [id, API_PORT]);
 
     function handleLeftOnClick(option: string) {
         if (option == "initial") {
@@ -148,8 +152,8 @@ export default function Annotate() {
                 frames: [currentFrame],
                 description: selectedOption
             };
-        }   
-        else{
+        }
+        else {
             newAnnotation = {
                 projectVideoTypeId: 1,
                 annotationTypeId: 1,
@@ -185,13 +189,13 @@ export default function Annotate() {
 
     //function handleAddConclusion(){}
 
-    async function handleSaveAnnotation(){
-        await fetch(`localhost:3000/v1/recording/${id}/annotation`, {
+    async function handleSaveAnnotation() {
+        await fetch(urlPath, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 events: annotations,
                 atypicalities: atypicalities
             })

@@ -7,40 +7,50 @@ import Card from '@/components/Card';
 import CustomModal from '@/components/CustomModal';
 import Header from '../../components/Header';
 import SearchBar from '@/components/SearchBar';
-import filesTest from '../../data/files.json';
-import { VideoInfoModel } from '@/models/videoInfoModel';
-// import { RecordingModel, VideoInfoModel } from '@/models/models';
+// import filesTest from '../../data/files.json';
+// import { VideoInfoModel } from '@/models/videoInfoModel';
+import { RecordingModel } from '@/models/models';
 
 export default function Home() {
-  // const filesTest = process.env.FILES_TEST;
   const _navigate = useNavigate();
   const [readAnnotationModal, setReadAnnotationModal] = useState<{ [key: number]: boolean }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(15);
   // const [searchTerm, setSearchTerm] = useState("");
   // const [files, setFiles] = useState<RecordingModel[]>([]);
-  const [files, setFiles] = useState<VideoInfoModel[]>(filesTest);
-
+  const [files, setFiles] = useState<RecordingModel[]>([]);
+  const [loading, setLoading] = useState(true);
+  // const API_PORT = import.meta.env.VITE_API_PORT || 5000;
+  // const API_IP=  import.meta.env.VITE_API_IP || 'localhost';
 
   const fetchVideos = async () => {
     try {
-      const response = await fetch('http://localhost:3000/v1/recording');
+      // const urlPath = `http://${API_IP}:${API_PORT}/v1/recording`;
+      const urlPath = `http://172.29.207.16:5001/v1/recording`;
+      console.log("URLPATH", urlPath);
+      const response = await fetch(urlPath);
       if (!response.ok) throw new Error("Erro ao buscar vídeos");
-
+      console.log("RESPONSE", response);
       const data = await response.json();
       setFiles(data);
     } catch (error) {
-      console.error("Erro na requisição:", error);
+      console.log("Erro na requisição:", error);
       toast.error("Erro ao buscar vídeos na api");
-      toast.loading("Carregando vídeos locais de teste");
-      toast.success("Vídeos de teste carregados");
-      setFiles(filesTest);
+      // await new Promise(resolve => setTimeout(resolve, 1000));
+      // toast.loading("Carregando vídeos locais de teste");
+      // await new Promise(resolve => setTimeout(resolve, 1000));
+      // toast.success("Vídeos de teste carregados");
+      // setFiles(filesTest);
     }
   };
 
   useEffect(() => {
-    fetchVideos();
-  }, []);
+    if (loading) {
+      setLoading(false);
+      fetchVideos();
+      console.log("CHAMOU O FETCH");
+    }
+  }, [loading]);
 
   const openModal = (videoId: number) => {
     setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: true }));
@@ -52,7 +62,7 @@ export default function Home() {
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedFiles = filesTest.slice(startIndex, endIndex);
+  const paginatedFiles = files.slice(startIndex, endIndex);
 
   // const handleSearch = (term: string) => {
   //   setSearchTerm(term);
@@ -75,16 +85,16 @@ export default function Home() {
     <div className='flex-col h-screen w-screen overflow-x-hidden'>
       <Header />
       <div className='flex justify-center'>
-        <SearchBar onClick={()=>{}} />
+        <SearchBar onClick={() => { }} />
       </div>
       {files.length > 0 ? (
         <div>
           <div id="paging-grid" className="grid grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))] gap-4 m-10">
             {paginatedFiles.map((file, i) => (
               <div key={i}>
-                <Card fileInfo={file} onAnnotate={() => _navigate(`annotate/${file.fileId}`)} onVisualize={() => { openModal(file.fileId) }} />
-                {readAnnotationModal[file.fileId] && (
-                  <div><CustomModal id={file.fileId} isOpen={true} onClose={() => closeModal(file.fileId)} /></div>
+                <Card fileInfo={file} onAnnotate={() => _navigate(`annotate/${file.id}`)} onVisualize={() => { openModal(file.id) }} />
+                {readAnnotationModal[file.id] && (
+                  <div><CustomModal id={file.id} isOpen={true} onClose={() => closeModal(file.id)} /></div>
                 )}
               </div>
             ))}
@@ -116,7 +126,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      ):(
+      ) : (
         <div className="flex justify-center items-center h-[80vh]">
           <span className="text-2xl text-gray-400">Nenhum vídeo encontrado</span>
         </div>

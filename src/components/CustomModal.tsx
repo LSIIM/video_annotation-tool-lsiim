@@ -3,11 +3,7 @@ import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import AnnotationContainer from './AnnotationContainer';
-
-interface Annotation {
-  frames: number[];
-  description: string;
-}
+import { AnnotationModel } from '@/models/models';
 
 interface Props {
   isOpen: boolean;
@@ -17,13 +13,14 @@ interface Props {
 }
 
 export default function CustomModal({ isOpen, id, onClose }: Props) {
-  const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
   const _navigate = useNavigate();
+  const urlPath = `http://172.29.207.16:5001/v1/recording/${id}/annotation`;
 
   useEffect(() => {
     const loadAnnotations = async () => {
       try {
-        const response = await fetch(`/videos/${id}/annotation.json`);
+        const response = await fetch(urlPath);
         const data = await response.json();
         setAnnotations(data.annotations);
       } catch (error) {

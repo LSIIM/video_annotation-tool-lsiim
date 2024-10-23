@@ -6,9 +6,8 @@ export interface AnnotationModel {
 }
 
 export interface VideoInfoModel {
-    id_recording: number;
-    id_video_type: number;
-    annotation: [AnnotationModel];
+    url: string;
+    isMain: boolean;
 }
   
 export interface UserModel {

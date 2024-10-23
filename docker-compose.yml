@@ -1,18 +1,21 @@
-version: '1.0.0'
 services:
-  lsiim_annotation:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "5173:80"
-    volumes:
-      - .:/app
-    environment:
-      - NODE_ENV=production
-    networks:
-      - lsiimnet
+    lsiim_annotation:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "5173:${APP_PORT}"
+        environment:
+            - NODE_ENV=production
+            - API_URL=http://lsiim-docker-api:${API_PORT}
+        volumes:
+            - .:/app
+        depends_on:
+            - api
+        networks:
+            - lsiimnet
 
 networks:
-  lsiimnet:
-    driver: bridge
+    lsiimnet:
+        driver: bridge
+    # external: true # Usar a rede externa definida no primeiro projeto
