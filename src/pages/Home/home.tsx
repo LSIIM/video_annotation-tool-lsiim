@@ -17,15 +17,11 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(15);
   // const [searchTerm, setSearchTerm] = useState("");
-  // const [files, setFiles] = useState<RecordingModel[]>([]);
   const [files, setFiles] = useState<RecordingModel[]>([]);
   const [loading, setLoading] = useState(true);
-  // const API_PORT = import.meta.env.VITE_API_PORT || 5000;
-  // const API_IP=  import.meta.env.VITE_API_IP || 'localhost';
 
   const fetchVideos = async () => {
     try {
-      // const urlPath = `http://${API_IP}:${API_PORT}/v1/recording`;
       const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
       const urlPath = apiPath + `/v1/recording`;
       console.log("URLPATH", urlPath);
@@ -37,11 +33,6 @@ export default function Home() {
     } catch (error) {
       console.log("Erro na requisição:", error);
       toast.error("Erro ao buscar vídeos na api");
-      // await new Promise(resolve => setTimeout(resolve, 1000));
-      // toast.loading("Carregando vídeos locais de teste");
-      // await new Promise(resolve => setTimeout(resolve, 1000));
-      // toast.success("Vídeos de teste carregados");
-      // setFiles(filesTest);
     }
   };
 

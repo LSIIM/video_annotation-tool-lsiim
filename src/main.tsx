@@ -17,21 +17,21 @@ import { PrivateRoutes } from './utils/PrivateRoutes';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.Fragment>
     <Toaster position='top-right' toastOptions={{ duration: 2000 }} />
-    <AuthProvider>
+    {/* <AuthProvider> */}
       {/* REACT ROUTER */}
       <BrowserRouter>
         <Routes>
           <Route path='/login' index element={<Login />} />
           {/* <Route path='/signup' index element={<Signup />} /> */}
-          <Route path='' element={<PrivateRoutes />}>
+          {/* <Route path='' element={<PrivateRoutes />}> */}
             <Route path='*' element={<ErrorPage />} />
             <Route path='/' index element={<Home />} />
             <Route path='/about' index element={<About />} />
             <Route path='/annotate/:id' index element={<Annotate />} />
-          </Route>
+          {/* </Route> */}
         </Routes>
       </BrowserRouter>
       {/* REACT ROUTER */}
-    </AuthProvider>
+    {/* </AuthProvider> */}
   </React.Fragment>
 )

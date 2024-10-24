@@ -1,36 +1,39 @@
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import AnnotationContainer from './AnnotationContainer';
-import { AnnotationModel } from '@/models/models';
+import T_Container from './T_Container';
+import { AtypicalityModel } from '@/models/models';
 
 interface Props {
   isOpen: boolean;
   id: number;
+  videoTypeId: number;
+  onSave: () => void;
   onClose: () => void;
 }
 
-export default function AnnotationModal({ isOpen, id, onClose }: Props) {
-  const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
-  const _navigate = useNavigate();
+export default function AtypicalityModal({ isOpen, id, onSave, onClose, videoTypeId }: Props) {
+  const [atypicalities, setAtypicalites] = useState<AtypicalityModel[]>([]);
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
   const urlPath = apiPath + `/v1/recording/${id}/annotation`;
-  console.log("URLPATH", urlPath);
+  // console.log("URLPATH", urlPath);
 
   useEffect(() => {
-    const loadAnnotations = async () => {
+    const loadAtypicalities = async () => {
+      setAtypicalites([]);
+      return;
       try {
         const response = await fetch(urlPath);
         const data = await response.json();
-        setAnnotations(data.annotations);
+        setAtypicalites(data.annotations);
       } catch (error) {
         toast.error('Erro ao carregar as anotações.');
+        setAtypicalites([]);
       }
     };
 
     if (isOpen) {
-      loadAnnotations();
+      loadAtypicalities();
     }
   }, [id, isOpen]);
 
@@ -42,12 +45,12 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="video-controller" className="flex ml-4">
-        <AnnotationContainer annotations={annotations} onRemove={() => { }} option="see" />
+        <T_Container data={atypicalities} onRemove={() => { }} option="see" />
       </div>
 
       <div className='flex space-x-4 justify-center mb-4'>
         <button onClick={onClose} className="bg-gray-400 rounded-[30px] hover:bg-gray-600 px-6 py-2 text-xl">Fechar</button>
-        <button onClick={() => _navigate(`/annotate/${id}`)} className="bg-green-500/90 rounded-[30px] hover:bg-green-800 px-6 py-2 text-xl">Anotar</button>
+        <button onClick={onSave} className="bg-green-500/90 rounded-[30px] hover:bg-green-800 px-6 py-2 text-xl">Salvar</button>
       </div>
     </Modal>
   );

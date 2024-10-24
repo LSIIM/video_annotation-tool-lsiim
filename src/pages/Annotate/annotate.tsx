@@ -1,18 +1,14 @@
-import AnnotationContainer from "@/components/AnnotationContainer";
+import T_Container from "@/components/T_Container";
 import FrameController from "@/components/FrameController";
 import Header from "@/components/Header";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from 'react-hot-toast';
-import { AnnotationModel, AtypicalityModel, RecordingModel, VideoInfoModel } from "@/models/models";
+import { AnnotationModel, AtypicalityModel } from "@/models/models";
 import { useSearchParams } from "react-router-dom"; // Adicione esta importação
+import AtypicalityModal from "@/components/AtypicalityModal";
 
 export default function Annotate() {
-    const { id } = useParams();
-    const [searchParams] = useSearchParams(); // Captura os parâmetros de query da URL
-    const videoTypeId = searchParams.get("video_type_id"); // Obtém o video_type_id da query string
-    const [videoUrl, setVideoUrl] = useState<string | null>(null);
-
     const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
     const [atypicalities, setAtypicalities] = useState<AtypicalityModel[]>([]);
     const [loading, setLoading] = useState(true);
@@ -20,6 +16,16 @@ export default function Annotate() {
     const [currentFrame, setCurrentFrame] = useState(1);
     const [initialFrame, setInitialFrame] = useState(1);
     const [endFrame, setEndFrame] = useState(1);
+    const [selectedFlag, setSelectedFlag] = useState<string>("continuous");
+    const [videoPath, setVideoPath] = useState<string>("");
+    const [selectedOption, setSelectedOption] = useState("Selecione uma opção");
+    const [readAtipycalityModal, setReadAtypecityModal] = useState<boolean>(false);
+
+    const { id } = useParams();
+    const [searchParams] = useSearchParams();
+    const videoTypeId = searchParams.get("video_type_id");
+    const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
+    const annotationUrlPath = apiPath + `/v1/recording/${id}/annotation`;
     const _navigate = useNavigate();
     const videoRef = useRef<HTMLVideoElement>(null);
     const videoRefInicial = useRef<HTMLVideoElement>(null);
@@ -32,14 +38,6 @@ export default function Annotate() {
         { nome: "Rastreamento", flag: "continuous" },
     ];
 
-    const [selectedOption, setSelectedOption] = useState(options[0].nome);
-    const [selectedFlag, setSelectedFlag] = useState<string>("continuous");
-    const [videoPath, setVideoPath] = useState<string>("");
-    
-    const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
-    const annotationUrlPath = apiPath + `/v1/recording/${id}/annotation`;
-    const videoUrlPath = apiPath + `/v1/recording/${id}`;
-
     function handleOptionChange(e: React.ChangeEvent<HTMLSelectElement>) {
         const selectedNome = e.target.value;
         setSelectedOption(selectedNome);
@@ -48,30 +46,36 @@ export default function Annotate() {
         if (selectedObject) setSelectedFlag(selectedObject.flag);
     }
 
-
     const fetchVideo = async () => {
         try {
-          const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
-          const response = await fetch(`${apiPath}/v1/recording/${id}`);
-          if (!response.ok) throw new Error("Erro ao buscar dados do vídeo");
-          
-          const data = await response.json();
-          const video = data.videos.find((v: { url: string }) => v.url.includes(`${videoTypeId}.mp4`));
+            const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
+            const response = await fetch(`${apiPath}/v1/recording/${id}`);
+            if (!response.ok) throw new Error("Erro ao buscar dados do vídeo");
 
-          
-          if (video) {
-            setVideoUrl(video.url);
-          } else {
-            throw new Error("Vídeo não encontrado.");
-          }
+            const data = await response.json();
+            const video = data.videos.find((v: { url: string }) => v.url.includes(`${videoTypeId}.mp4`));
+            if (video) {
+                setVideoPath(video.url);
+            } else {
+                throw new Error("Vídeo não encontrado.");
+            }
         } catch (error) {
-          toast.error("Erro ao carregar o vídeo.");
+            toast.error("Erro ao carregar o vídeo.");
         }
-      };
-    
-      useEffect(() => {
-        fetchVideo();
-      }, [id, videoTypeId]);
+    };
+
+    const loadAnnotations = async () => {
+        try {
+            const response = await fetch(annotationUrlPath);
+            if (!response.ok) throw new Error("Arquivo não encontrado.");
+            const data = await response.json();
+            setAnnotations(data);//data.annotations || []);
+            setAtypicalities([]);//data.atypicalities || []);
+        } catch (error) {
+            setAnnotations([]);
+            toast.error("Nenhuma anotação encontrada.");
+        }
+    };
 
     useEffect(() => {
         const video = videoRef.current;
@@ -112,35 +116,10 @@ export default function Annotate() {
     }, [endFrame]);
 
     useEffect(() => {
-        const loadAnnotations = async () => {
-            try {
-                const response = await fetch(annotationUrlPath);
-                if (!response.ok) throw new Error("Arquivo não encontrado.");
-                const data = await response.json();
-                setAnnotations(data);//data.annotations || []);
-                setAtypicalities([]);//data.atypicalities || []);
-            } catch (error) {
-                setAnnotations([]);
-                toast.error("Nenhuma anotação encontrada.");
-            }
-        };
-        const loadVideoPath = async () => {
-            try{
-                const response = await fetch(videoUrlPath);
-                if (!response.ok) throw new Error("Arquivo não encontrado.");
-                const data: RecordingModel = await response.json();
-                const mainVideo: VideoInfoModel | undefined = data.videos.find(video => video.isMain === true);
-                console.log("chamando todos os cornos: ", mainVideo);
-                mainVideo? setVideoPath(mainVideo.url) : setVideoPath("");
-            } catch (error) {
-                setVideoPath("");
-                toast.error("Nenhum vídeo encontrado.");
-            }
-        };
         loadAnnotations();
-        loadVideoPath();
+        fetchVideo();
         setLoading(false);
-    }, [id]);
+    }, [id, videoTypeId]);
 
     function handleLeftOnClick(option: string) {
         if (option == "initial") {
@@ -232,8 +211,6 @@ export default function Annotate() {
             .catch(() => toast.error('Erro ao remover anotação.'));
     }
 
-    //function handleAddConclusion(){}
-
     async function handleSaveAnnotation() {
         await fetch(annotationUrlPath, {
             method: 'POST',
@@ -261,15 +238,15 @@ export default function Annotate() {
                         <>
                             <div id="videos-container" className="flex justify-evenly items-end">
                                 <div className="w-[25%] flex-col flex justify-center">
-                                    <video ref={videoRefInicial} src={videoPath?videoPath:""} className="w-full rounded-lg shadow-lg mb-4" />
+                                    <video ref={videoRefInicial} src={videoPath ? videoPath : ""} className="w-full rounded-lg shadow-lg mb-4" />
                                     <FrameController showButton text="Frame Inicial" index={[initialFrame, totalFrames]} leftOnClick={() => { handleLeftOnClick("initial") }} rightOnClick={() => { handleRightOnClick("initial") }} />
                                 </div>
                                 <div className="w-[40%] flex-col flex items-center">
-                                    <video ref={videoRef} id="my-video" controls src={videoPath?videoPath:""} className="h-auto rounded-lg shadow-lg mb-4" />
+                                    <video ref={videoRef} id="my-video" controls src={videoPath ? videoPath : ""} className="h-auto rounded-lg shadow-lg mb-4" />
                                     <FrameController showButton text="Frame Atual" index={[currentFrame, totalFrames]} leftOnClick={() => { handleLeftOnClick("setInitial") }} rightOnClick={() => { handleRightOnClick("setEnd") }} />
                                 </div>
                                 <div className="w-[25%] flex-col flex justify-center">
-                                    <video ref={videoRefFinal} src={videoPath?videoPath:""} className="w-full rounded-lg shadow-lg mb-4" />
+                                    <video ref={videoRefFinal} src={videoPath ? videoPath : ""} className="w-full rounded-lg shadow-lg mb-4" />
                                     <FrameController showButton text="Frame Final" index={[endFrame, totalFrames]} leftOnClick={() => { handleLeftOnClick("end") }} rightOnClick={() => { handleRightOnClick("end") }} />
                                 </div>
                             </div>
@@ -333,13 +310,16 @@ export default function Annotate() {
                     ) : (
                         <div className="flex flex-col justify-between h-full">
                             <div className="flex-grow">
-                                <AnnotationContainer annotations={annotations} option="edit" onRemove={handleRemoveAnnotation}/>
+                                <T_Container data={annotations} option="edit" onRemove={handleRemoveAnnotation} />
                             </div>
                             <div className="flex justify-between items-end">
                                 <div />
-                                <button onClick={handleSaveAnnotation} className="bg-green-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md mr-4">
+                                <button onClick={() => { setReadAtypecityModal(true) }} className="bg-green-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md mr-4">
                                     Anotar Conclusões
                                 </button>
+                                {readAtipycalityModal && (
+                                    <div><AtypicalityModal id={Number(id)} videoTypeId={Number(videoTypeId)} isOpen={true} onSave={handleSaveAnnotation} onClose={() => setReadAtypecityModal(false)} /></div>
+                                )}
                             </div>
                         </div>
                     )}

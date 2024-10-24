@@ -2,17 +2,18 @@ import { AnnotationModel, AtypicalityModel } from "@/models/models";
 import { Trash2 } from "lucide-react";
 
 interface Props<T> {
-    annotations: T[];
+    data: T[];
     option: string;
     onRemove: (index: number) => void;
+    type?: string;
 }
 
-export default function AnnotationContainer<T extends AnnotationModel | AtypicalityModel>({ annotations, option, onRemove }: Props<T>) {
-    const isAnnotation = isAnnotationModel(annotations[0]);
-    const title = (isAnnotation) ? "Atipicidade" : "Anotações";
-    const text = (isAnnotation) ? "atipicidades" : "anotações";
+export default function T_Container<T extends AnnotationModel | AtypicalityModel>({ data, option, onRemove, type }: Props<T>) {
+    const isAnnotation = data.length > 0 ? isAnnotationModel(data[0]) : type === "annotation";
+    const title = isAnnotation ? "Anotações" : "Atipicidade";
+    const text = isAnnotation ? "anotações" : "atipicidades";
 
-    if (!annotations || annotations.length === 0) {
+    if (!data || data.length === 0) {
         return (
             <div className="flex flex-col mt-2 mr-2">
                 <h2 className="text-xl font-bold mb-4">{title}</h2>
@@ -28,15 +29,17 @@ export default function AnnotationContainer<T extends AnnotationModel | Atypical
     }
     
     function isAnnotationModel(annotation: any): annotation is AnnotationModel {
+        if (annotation === undefined) {
+            return false;
+        }
         return (annotation as AnnotationModel).frames !== undefined;
     }
-
 
     return (
         <div className="flex flex-col mt-2 mr-2">
             <h2 className="text-xl font-bold mb-4">{title}</h2>
             <div className="overflow-y-auto max-h-96">
-                {annotations.map((annotation, index) => (
+                {data.map((annotation, index) => (
                     <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex justify-between mr-2">
                         <div>
                             {isAnnotationModel(annotation) ? (
