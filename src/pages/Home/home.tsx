@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../global.css';
 // import { useAuth } from '@/hooks/UseAuth';
 import Card from '@/components/Card';
-import CustomModal from '@/components/CustomModal';
+import AnnotationModal from '@/components/AnnotationModal';
 import Header from '../../components/Header';
 import SearchBar from '@/components/SearchBar';
 // import filesTest from '../../data/files.json';
@@ -95,7 +95,7 @@ export default function Home() {
               <div key={i}>
                 <Card fileInfo={file} onAnnotate={() => _navigate(`annotate/${file.id}`)} onVisualize={() => { openModal(file.id) }} />
                 {readAnnotationModal[file.id] && (
-                  <div><CustomModal id={file.id} isOpen={true} onClose={() => closeModal(file.id)} /></div>
+                  <div><AnnotationModal id={file.id} isOpen={true} onClose={() => closeModal(file.id)} /></div>
                 )}
               </div>
             ))}

@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from 'react-hot-toast';
-import { AnnotationModel, AtypicalityModel } from "@/models/models";
+import { AnnotationModel, AtypicalityModel, RecordingModel, VideoInfoModel } from "@/models/models";
 
 export default function Annotate() {
     const { id } = useParams();
@@ -19,7 +19,6 @@ export default function Annotate() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const videoRefInicial = useRef<HTMLVideoElement>(null);
     const videoRefFinal = useRef<HTMLVideoElement>(null);
-    const API_PORT = import.meta.env.VITE_API_PORT || 5000;
     const fps = 30;
     const options = [
         { nome: "Selecione uma opção", flag: "continuous" },
@@ -30,8 +29,11 @@ export default function Annotate() {
 
     const [selectedOption, setSelectedOption] = useState(options[0].nome);
     const [selectedFlag, setSelectedFlag] = useState<string>("continuous");
+    const [videoPath, setVideoPath] = useState<string>("");
+    
     const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
-    const urlPath = apiPath + `/v1/recording/${id}/annotation`;
+    const annotationUrlPath = apiPath + `/v1/recording/${id}/annotation`;
+    const videoUrlPath = apiPath + `/v1/recording/${id}`;
 
     function handleOptionChange(e: React.ChangeEvent<HTMLSelectElement>) {
         const selectedNome = e.target.value;
@@ -82,8 +84,7 @@ export default function Annotate() {
     useEffect(() => {
         const loadAnnotations = async () => {
             try {
-                // const response = await fetch(`/videos/${id}/annotation.json`);
-                const response = await fetch(urlPath);
+                const response = await fetch(annotationUrlPath);
                 if (!response.ok) throw new Error("Arquivo não encontrado.");
                 const data = await response.json();
                 setAnnotations(data);//data.annotations || []);
@@ -91,12 +92,25 @@ export default function Annotate() {
             } catch (error) {
                 setAnnotations([]);
                 toast.error("Nenhuma anotação encontrada.");
-            } finally {
-                setLoading(false);
+            }
+        };
+        const loadVideoPath = async () => {
+            try{
+                const response = await fetch(videoUrlPath);
+                if (!response.ok) throw new Error("Arquivo não encontrado.");
+                const data: RecordingModel = await response.json();
+                const mainVideo: VideoInfoModel | undefined = data.videos.find(video => video.isMain === true);
+                console.log("chamando todos os cornos: ", mainVideo);
+                mainVideo? setVideoPath(mainVideo.url) : setVideoPath("");
+            } catch (error) {
+                setVideoPath("");
+                toast.error("Nenhum vídeo encontrado.");
             }
         };
         loadAnnotations();
-    }, [id, API_PORT]);
+        loadVideoPath();
+        setLoading(false);
+    }, [id]);
 
     function handleLeftOnClick(option: string) {
         if (option == "initial") {
@@ -191,7 +205,7 @@ export default function Annotate() {
     //function handleAddConclusion(){}
 
     async function handleSaveAnnotation() {
-        await fetch(urlPath, {
+        await fetch(annotationUrlPath, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -217,15 +231,15 @@ export default function Annotate() {
                         <>
                             <div id="videos-container" className="flex justify-evenly items-end">
                                 <div className="w-[25%] flex-col flex justify-center">
-                                    <video ref={videoRefInicial} src={`/videos/${id}/record.mp4`} className="w-full rounded-lg shadow-lg mb-4" />
+                                    <video ref={videoRefInicial} src={videoPath?videoPath:"/"} className="w-full rounded-lg shadow-lg mb-4" />
                                     <FrameController showButton text="Frame Inicial" index={[initialFrame, totalFrames]} leftOnClick={() => { handleLeftOnClick("initial") }} rightOnClick={() => { handleRightOnClick("initial") }} />
                                 </div>
                                 <div className="w-[40%] flex-col flex items-center">
-                                    <video ref={videoRef} id="my-video" controls src={`/videos/${id}/record.mp4`} className="h-auto rounded-lg shadow-lg mb-4" />
+                                    <video ref={videoRef} id="my-video" controls src={videoPath?videoPath:"/"} className="h-auto rounded-lg shadow-lg mb-4" />
                                     <FrameController showButton text="Frame Atual" index={[currentFrame, totalFrames]} leftOnClick={() => { handleLeftOnClick("setInitial") }} rightOnClick={() => { handleRightOnClick("setEnd") }} />
                                 </div>
                                 <div className="w-[25%] flex-col flex justify-center">
-                                    <video ref={videoRefFinal} src={`/videos/${id}/record.mp4`} className="w-full rounded-lg shadow-lg mb-4" />
+                                    <video ref={videoRefFinal} src={videoPath?videoPath:"/"} className="w-full rounded-lg shadow-lg mb-4" />
                                     <FrameController showButton text="Frame Final" index={[endFrame, totalFrames]} leftOnClick={() => { handleLeftOnClick("end") }} rightOnClick={() => { handleRightOnClick("end") }} />
                                 </div>
                             </div>
@@ -289,7 +303,7 @@ export default function Annotate() {
                     ) : (
                         <div className="flex flex-col justify-between h-full">
                             <div className="flex-grow">
-                                <AnnotationContainer annotations={annotations} option="edit" onRemove={handleRemoveAnnotation} />
+                                <AnnotationContainer annotations={annotations} option="edit" onRemove={handleRemoveAnnotation}/>
                             </div>
                             <div className="flex justify-between items-end">
                                 <div />

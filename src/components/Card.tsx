@@ -8,11 +8,8 @@ interface Props {
 
 export default function Card({ fileInfo, onAnnotate, onVisualize }: Props) {
     const mainVideo = fileInfo.videos.find(video => video.isMain === true);
-    
-    // Verifique se a URL inclui o protocolo
     const videoPath = mainVideo?.url
-    
-    console.log(videoPath);  // Verifique se o valor está correto
+    console.log(videoPath);
 
     return (
         <section className='h-40 flex justify-between max-w-full rounded-xl bg-zinc-800'>

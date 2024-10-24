@@ -9,14 +9,14 @@ interface Props {
   isOpen: boolean;
   id: number;
   onClose: () => void;
-  page?: string;
 }
 
-export default function CustomModal({ isOpen, id, onClose }: Props) {
+export default function AnnotationModal({ isOpen, id, onClose }: Props) {
   const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
   const _navigate = useNavigate();
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
-    const urlPath = apiPath + `/v1/recording/${id}/annotation`;
+  const urlPath = apiPath + `/v1/recording/${id}/annotation`;
+  console.log("URLPATH", urlPath);
 
   useEffect(() => {
     const loadAnnotations = async () => {
@@ -42,7 +42,7 @@ export default function CustomModal({ isOpen, id, onClose }: Props) {
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="video-controller" className="flex ml-4">
-        <AnnotationContainer annotations={annotations} onRemove={() => { }} option="see" />
+        <AnnotationContainer annotations={annotations} onRemove={() => { }} option="see"/>
       </div>
 
       <div className='flex space-x-4 justify-center mb-4'>
