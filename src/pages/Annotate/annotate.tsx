@@ -5,9 +5,14 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { AnnotationModel, AtypicalityModel } from "@/models/models";
+import { useSearchParams } from "react-router-dom"; // Adicione esta importação
 
 export default function Annotate() {
     const { id } = useParams();
+    const [searchParams] = useSearchParams(); // Captura os parâmetros de query da URL
+    const videoTypeId = searchParams.get("video_type_id"); // Obtém o video_type_id da query string
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
     const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
     const [atypicalities, setAtypicalities] = useState<AtypicalityModel[]>([]);
     const [loading, setLoading] = useState(true);
@@ -40,6 +45,31 @@ export default function Annotate() {
         const selectedObject = options.find(option => option.nome === selectedNome);
         if (selectedObject) setSelectedFlag(selectedObject.flag);
     }
+
+
+    const fetchVideo = async () => {
+        try {
+          const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
+          const response = await fetch(`${apiPath}/v1/recording/${id}`);
+          if (!response.ok) throw new Error("Erro ao buscar dados do vídeo");
+          
+          const data = await response.json();
+          const video = data.videos.find((v: { url: string }) => v.url.includes(`${videoTypeId}.mp4`));
+
+          
+          if (video) {
+            setVideoUrl(video.url);
+          } else {
+            throw new Error("Vídeo não encontrado.");
+          }
+        } catch (error) {
+          toast.error("Erro ao carregar o vídeo.");
+        }
+      };
+    
+      useEffect(() => {
+        fetchVideo();
+      }, [id, videoTypeId]);
 
     useEffect(() => {
         const video = videoRef.current;
@@ -217,15 +247,15 @@ export default function Annotate() {
                         <>
                             <div id="videos-container" className="flex justify-evenly items-end">
                                 <div className="w-[25%] flex-col flex justify-center">
-                                    <video ref={videoRefInicial} src={`/videos/${id}/record.mp4`} className="w-full rounded-lg shadow-lg mb-4" />
+                                    <video ref={videoRefInicial} src={videoUrl?videoUrl:""} className="w-full rounded-lg shadow-lg mb-4" />
                                     <FrameController showButton text="Frame Inicial" index={[initialFrame, totalFrames]} leftOnClick={() => { handleLeftOnClick("initial") }} rightOnClick={() => { handleRightOnClick("initial") }} />
                                 </div>
                                 <div className="w-[40%] flex-col flex items-center">
-                                    <video ref={videoRef} id="my-video" controls src={`/videos/${id}/record.mp4`} className="h-auto rounded-lg shadow-lg mb-4" />
+                                    <video ref={videoRef} id="my-video" controls src={videoUrl?videoUrl:""} className="h-auto rounded-lg shadow-lg mb-4" />
                                     <FrameController showButton text="Frame Atual" index={[currentFrame, totalFrames]} leftOnClick={() => { handleLeftOnClick("setInitial") }} rightOnClick={() => { handleRightOnClick("setEnd") }} />
                                 </div>
                                 <div className="w-[25%] flex-col flex justify-center">
-                                    <video ref={videoRefFinal} src={`/videos/${id}/record.mp4`} className="w-full rounded-lg shadow-lg mb-4" />
+                                    <video ref={videoRefFinal} src={videoUrl?videoUrl:""} className="w-full rounded-lg shadow-lg mb-4" />
                                     <FrameController showButton text="Frame Final" index={[endFrame, totalFrames]} leftOnClick={() => { handleLeftOnClick("end") }} rightOnClick={() => { handleRightOnClick("end") }} />
                                 </div>
                             </div>
