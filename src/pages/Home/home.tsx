@@ -7,9 +7,7 @@ import Card from '@/components/Card';
 import AnnotationModal from '@/components/AnnotationModal';
 import Header from '../../components/Header';
 import SearchBar from '@/components/SearchBar';
-// import filesTest from '../../data/files.json';
-// import { VideoInfoModel } from '@/models/videoInfoModel';
-import { RecordingModel } from '@/models/models';
+import { RecordingModel } from '@/models/RecordingModel';
 
 export default function Home() {
   const _navigate = useNavigate();

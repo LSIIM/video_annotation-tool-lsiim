@@ -1,4 +1,4 @@
-import { RecordingModel } from "@/models/models";
+import { RecordingModel } from "@/models/RecordingModel";
 
 interface Props {
     fileInfo: RecordingModel;

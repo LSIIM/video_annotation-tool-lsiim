@@ -4,13 +4,13 @@ import Header from "@/components/Header";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from 'react-hot-toast';
-import { AnnotationModel, AtypicalityModel } from "@/models/models";
+import { AnnotationModel, ResultModel } from "@/models/models";
 import { useSearchParams } from "react-router-dom"; // Adicione esta importação
 import AtypicalityModal from "@/components/AtypicalityModal";
 
 export default function Annotate() {
     const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
-    const [atypicalities, setAtypicalities] = useState<AtypicalityModel[]>([]);
+    const [atypicalities, setAtypicalities] = useState<ResultModel[]>([]);
     const [loading, setLoading] = useState(true);
     const [totalFrames, setTotalFrames] = useState(100);
     const [currentFrame, setCurrentFrame] = useState(1);
@@ -169,22 +169,13 @@ export default function Annotate() {
             return;
         }
         let newAnnotation: AnnotationModel;
-        if (selectedFlag === 'pontual') {
-            newAnnotation = {
-                projectVideoTypeId: 1,
-                annotationTypeId: 1,
-                frames: [currentFrame],
-                description: selectedOption
-            };
-        }
-        else {
-            newAnnotation = {
-                projectVideoTypeId: 1,
-                annotationTypeId: 1,
-                frames: [initialFrame, endFrame],
-                description: selectedOption
-            };
-        }
+        let frames = []
+        if (selectedFlag === 'pontual') frames = [currentFrame];
+        else frames = [initialFrame, endFrame];
+        newAnnotation = {
+            fk_id_event_type: 1,
+            frames: frames,
+        };
 
         setAnnotations((prevAnnotations) => [...prevAnnotations, newAnnotation]);
         toast.success("Anotação adicionada com sucesso!");
@@ -310,7 +301,7 @@ export default function Annotate() {
                     ) : (
                         <div className="flex flex-col justify-between h-full">
                             <div className="flex-grow">
-                                <T_Container data={annotations} option="edit" onRemove={handleRemoveAnnotation} />
+                                <T_Container data={annotations} option="edit" onRemove={handleRemoveAnnotation} type="annotation"/>
                             </div>
                             <div className="flex justify-between items-end">
                                 <div />

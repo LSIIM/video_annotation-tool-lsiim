@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 import { useEffect, useState } from 'react';
 import T_Container from './T_Container';
-import { AtypicalityModel } from '@/models/models';
+import { ResultModel } from '@/models/models';
 
 interface Props {
   isOpen: boolean;
@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function AtypicalityModal({ isOpen, id, onSave, onClose, videoTypeId }: Props) {
-  const [atypicalities, setAtypicalites] = useState<AtypicalityModel[]>([]);
+  const [atypicalities, setAtypicalites] = useState<ResultModel[]>([]);
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
   const urlPath = apiPath + `/v1/recording/${id}/annotation`;
   // console.log("URLPATH", urlPath);
@@ -45,7 +45,7 @@ export default function AtypicalityModal({ isOpen, id, onSave, onClose, videoTyp
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="video-controller" className="flex ml-4">
-        <T_Container data={atypicalities} onRemove={() => { }} option="see" />
+        <T_Container data={atypicalities} onRemove={() => { }} option="see" type="atypicality" />
       </div>
 
       <div className='flex space-x-4 justify-center mb-4'>

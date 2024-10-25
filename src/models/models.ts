@@ -1,68 +1,12 @@
 export interface AnnotationModel {
-    projectVideoTypeId: number;
-    annotationTypeId: number;
+    fk_id_event_type: number;
     frames: number[];
-    description: string;
+    fk_id_annotation?: number;
 }
 
-export interface VideoInfoModel {
-    url: string;
-    isMain: boolean;
-}
-  
-export interface UserModel {
-    id?: number;
-    name?: string;
-    // email?: string;
-    password?: string;
-}
-
-export interface BabyInfoModel {
-    id: number;
-    name: string;
-    birthDate: string;
-    isPremature: boolean,
-    gestationalAge: number,
-    atipicidade: string,
-    createdAt: string,
-    updatedAt: string
-}
-
-export interface RecordingModel {
-    id: number;
-    ignore: boolean;
-    observation: string|null;
-    babyId: number;
-    babyInfo: BabyInfoModel;
-    recordingDate: string;
-    moveId: number;
-    moveInfo: MoveInfoModel;
-    moveAux: boolean;
-    projectId: number;
-    project: ProjectModel;
-    camInfoId: number|null;
-    recordVideoTypes: [];
-    createdAt: string;
-    updatedAt: string;
-    videos: VideoInfoModel[];
-}
-
-export interface MoveInfoModel {
-    id: number;
-    description: string;
-    projectId: number;
-    createdAt: string;
-    updatedAt: string;
-}
-
-export interface ProjectModel {
-    id: number;
-    projectName: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
-export interface AtypicalityModel {
-    id_atypicality: number;
-    atypicality_type: string;
+export interface ResultModel {
+    fk_id_result_type: number;
+    fk_id_result_type_option: number;
+    scalar_result: number;
+    fk_id_annotation: number;
 }
