@@ -5,7 +5,6 @@ export interface EventModel {
 }
 
 export interface ResultModel {
-    // id: number;
     name: string;
     description: string;
     resultTypesOptions: ResultOptionsModel[];

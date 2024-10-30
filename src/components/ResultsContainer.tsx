@@ -13,6 +13,7 @@ export default function ResultsContainer({ annotation, onRemove }: Props) {
     const [selectedResult, setSelectedResult] = useState<string>("");
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [additionalOptions, setAdditionalOptions] = useState<ResultOptionsModel[]>([]);
+    const [toggles, setToggles] = useState<boolean[]>([]);
 
     useEffect(() => {
         loadOptions();
@@ -39,6 +40,9 @@ export default function ResultsContainer({ annotation, onRemove }: Props) {
 
     function removeResult(index: number) {
         onRemove(index);
+        const updatedToggles = [...toggles];
+        updatedToggles.splice(index, 1);
+        setToggles(updatedToggles);
     }
 
     function handleAddResult() {
@@ -50,11 +54,12 @@ export default function ResultsContainer({ annotation, onRemove }: Props) {
             description: "",
             resultTypesOptions: selected.resultTypesOptions || []
         };
-        
+
         setResults([...results, newResult]);
         setSelectedResult("");
         setSelectedOption(null);
         setAdditionalOptions([]);
+        setToggles([...toggles, false]); // Adiciona um toggle desativado para o novo resultado
     }
 
     function handleResultChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -70,59 +75,39 @@ export default function ResultsContainer({ annotation, onRemove }: Props) {
         setSelectedOption(event.target.value);
     }
 
+    function toggleOption(index: number) {
+        const updatedToggles = [...toggles];
+        updatedToggles[index] = !updatedToggles[index];
+        setToggles(updatedToggles);
+    }
+
     return (
         <div className="flex flex-col mt-2 mr-2">
             <h2 className="text-xl font-bold mb-4">Conclusões</h2>
-            <div className="flex mb-4 gap-4">
-                <select
-                    value={selectedResult}
-                    onChange={handleResultChange}
-                    className="bg-gray-700 text-white rounded-lg px-4 py-2"
-                >
-                    <option value="">Selecione um Resultado</option>
-                    {resultOptions.map((option) => (
-                        <option key={option.name} value={option.name}>
-                            {option.name}
-                        </option>
-                    ))}
-                </select>
-
-                {additionalOptions.length > 0 && (
-                    <select
-                        value={selectedOption || ""}
-                        onChange={handleOptionChange}
-                        className="bg-gray-700 text-white rounded-lg px-4 py-2"
-                    >
-                        <option value="">Selecione uma Opção Adicional</option>
-                        {additionalOptions.map((option) => (
-                            <option key={option.name} value={option.name}>
-                                {option.name}
-                            </option>
-                        ))}
-                    </select>
-                )}
-
-                <button onClick={handleAddResult} className="p-2 ml-2 bg-blue-500 text-white rounded-lg">
-                    Adicionar Conclusão
-                </button>
-            </div>
-
             <div>
-                {results && results.length > 0 && (
-                    results.map((result, index) => (
-                        <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex justify-between mr-2">
-                            <div>
-                                <p className="font-semibold">Resultado: {result.name}</p>
-                                {result.resultTypesOptions && result.resultTypesOptions.length > 0 && (
-                                    <p>Opção Adicional: {result.resultTypesOptions.map(opt => opt.name).join(", ")}</p>
-                                )}
-                            </div>
-                            <button onClick={() => removeResult(index)}>
-                                <Trash2 />
-                            </button>
+                {resultOptions.map((result, index) => (
+                    <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex items-center justify-between mr-2 gap-8">
+                        <div className="flex items-center">
+                            <p className="font-semibold">Resultado: {result.name}</p>
                         </div>
-                    ))
-                )}
+                        <div className="flex items-center">
+                            {result.resultTypesOptions && result.resultTypesOptions.length > 0 ? (
+                                <select className="bg-gray-700 text-white rounded-lg px-4 py-2">
+                                    <option value="">Selecione uma opção</option>
+                                    {result.resultTypesOptions.map((opt) => (
+                                        <option key={opt.name} value={opt.name}>
+                                            {opt.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            ) : (
+                                <button onClick={() => toggleOption(index)} className={`px-4 py-2 rounded-lg ${toggles[index] ? 'bg-green-500' : 'bg-slate-800'} w-36`}>
+                                    {toggles[index] ? 'Detectado' : 'Não detectado'}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
     );

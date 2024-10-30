@@ -2,8 +2,8 @@ import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import T_Container from './EventsContainer';
-import { AnnotationModel } from '@/models/models';
+import { EventModel } from '@/models/models';
+import EventContainer from './EventsContainer';
 
 interface Props {
   isOpen: boolean;
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function AnnotationModal({ isOpen, id, onClose }: Props) {
-  const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
+  const [annotations, setAnnotations] = useState<EventModel[]>([]);
   const _navigate = useNavigate();
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
   const urlPath = apiPath + `/v1/recording/${id}/annotation`;
@@ -42,7 +42,7 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="video-controller" className="flex ml-4">
-        <T_Container data={annotations} onRemove={() => { }} option="see" type="annotation" />
+        <EventContainer data={annotations} onRemove={() => { }} option="see"/>
       </div>
 
       <div className='flex space-x-4 justify-center mb-4'>

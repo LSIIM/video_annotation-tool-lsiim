@@ -5,7 +5,6 @@ import { useAuth } from '../../hooks/UseAuth';
 import { toast } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-// import logo from '../../assets/lsiim.svg';
 
 export default function Login() {
   const [password, setPassword] = useState("");

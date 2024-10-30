@@ -9,10 +9,8 @@ export default function Header() {
     return (
         <div>
             <section className='flex justify-between px-10 items-center bg-zinc-900'>
-                <div className='flex w-[15%]'>
-                </div>
+                <div/>
                 <div className='ml-20 flex hover:opacity-50 cursor-default w-3/4 justify-center gap-2' onClick={() => _navigate('/')}>
-                    <img src='src/assets/lsiim.png' alt="logo" className='h-12'/>
                     <p className='text-2xl'>Ferramenta de Anotação de Vídeos do LSIIM/UFSC</p>
                 </div>
                 <div className='flex gap-2'>
