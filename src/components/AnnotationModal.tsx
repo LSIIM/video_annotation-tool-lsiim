@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import T_Container from './T_Container';
+import T_Container from './EventsContainer';
 import { AnnotationModel } from '@/models/models';
 
 interface Props {
@@ -42,7 +42,7 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="video-controller" className="flex ml-4">
-        <T_Container data={annotations} onRemove={() => { }} option="see" type="annotation"/>
+        <T_Container data={annotations} onRemove={() => { }} option="see" type="annotation" />
       </div>
 
       <div className='flex space-x-4 justify-center mb-4'>

@@ -2,28 +2,27 @@ export interface RecordingModel {
   id: number;
   ignore: boolean;
   observation: string|null;
-  babyId: number;
-  babyInfo: BabyModel;
+  patientId: number;
+  patient: PatientModel;
   recordingDate: string;
   moveId: number;
   moveInfo: MoveModel;
   moveAux: boolean;
   projectId: number;
   project: ProjectModel;
-  camInfoId: number|null;
   recordVideoTypes: [];
   createdAt: string;
   updatedAt: string;
   videos: VideoModel[];
 }
 
-export interface BabyModel {
+export interface PatientModel {
   id: number;
   name: string;
   birthDate: string;
   isPremature: boolean,
   gestationalAge: number,
-  atipicidade: string,
+  atipicidades: string,
   createdAt: string,
   updatedAt: string
 }

@@ -1,16 +1,15 @@
-import T_Container from "@/components/T_Container";
+import EventsContainer from "@/components/EventsContainer";
 import FrameController from "@/components/FrameController";
 import Header from "@/components/Header";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import toast from 'react-hot-toast';
-import { AnnotationModel, ResultModel } from "@/models/models";
-import { useSearchParams } from "react-router-dom"; // Adicione esta importação
-import AtypicalityModal from "@/components/AtypicalityModal";
+import { AnnotationModel, EventModel, OptionsModel } from "@/models/models";
+import { useSearchParams } from "react-router-dom";
+import ResultModal from "@/components/ResultModal";
 
 export default function Annotate() {
-    const [annotations, setAnnotations] = useState<AnnotationModel[]>([]);
-    const [atypicalities, setAtypicalities] = useState<ResultModel[]>([]);
+    const [annotation, setAnnotation] = useState<AnnotationModel>({ events: [], results: [] });
     const [loading, setLoading] = useState(true);
     const [totalFrames, setTotalFrames] = useState(100);
     const [currentFrame, setCurrentFrame] = useState(1);
@@ -20,6 +19,7 @@ export default function Annotate() {
     const [videoPath, setVideoPath] = useState<string>("");
     const [selectedOption, setSelectedOption] = useState("Selecione uma opção");
     const [readAtipycalityModal, setReadAtypecityModal] = useState<boolean>(false);
+    const [options, setOptions] = useState<OptionsModel[]>([]);
 
     const { id } = useParams();
     const [searchParams] = useSearchParams();
@@ -31,19 +31,14 @@ export default function Annotate() {
     const videoRefInicial = useRef<HTMLVideoElement>(null);
     const videoRefFinal = useRef<HTMLVideoElement>(null);
     const fps = 30;
-    const options = [
-        { nome: "Selecione uma opção", flag: "continuous" },
-        { nome: "Encontrou estímulo periférico", flag: "pontual" },
-        { nome: "Fixação", flag: "continuous" },
-        { nome: "Rastreamento", flag: "continuous" },
-    ];
 
     function handleOptionChange(e: React.ChangeEvent<HTMLSelectElement>) {
         const selectedNome = e.target.value;
         setSelectedOption(selectedNome);
 
-        const selectedObject = options.find(option => option.nome === selectedNome);
-        if (selectedObject) setSelectedFlag(selectedObject.flag);
+        const selectedObject = options.find(option => option.name === selectedNome);
+        if (selectedObject && selectedObject) setSelectedFlag(selectedObject.isTemporal ? 'continuous' : 'pontual');
+        else setSelectedFlag('continuous');
     }
 
     const fetchVideo = async () => {
@@ -64,18 +59,31 @@ export default function Annotate() {
         }
     };
 
-    const loadAnnotations = async () => {
+    const loadAnnotation = async () => {
         try {
             const response = await fetch(annotationUrlPath);
             if (!response.ok) throw new Error("Arquivo não encontrado.");
-            const data = await response.json();
-            setAnnotations(data);//data.annotations || []);
-            setAtypicalities([]);//data.atypicalities || []);
+            const data: AnnotationModel = await response.json();
+            setAnnotation(data);//data.annotations || []);
         } catch (error) {
-            setAnnotations([]);
+            setAnnotation({ events: [], results: [] });
             toast.error("Nenhuma anotação encontrada.");
         }
     };
+
+    const loadOptions = async () => {
+        try {
+            const response = await fetch(`${apiPath}/v1/event-type`);
+            if (!response.ok) throw new Error("Erro ao buscar opções de anotação.");
+            const data = await response.json();
+            const opt: OptionsModel[] = [{ name: "Selecione uma opção", description: "placeholder", isTemporal: true }];
+            for (const option in data) { opt.push(data[option]) }
+            setOptions(opt);
+        } catch (error) {
+            setOptions([]);
+            toast.error("Nenhuma opção encontrada.");
+        }
+    }
 
     useEffect(() => {
         const video = videoRef.current;
@@ -116,7 +124,8 @@ export default function Annotate() {
     }, [endFrame]);
 
     useEffect(() => {
-        loadAnnotations();
+        loadAnnotation();
+        loadOptions();
         fetchVideo();
         setLoading(false);
     }, [id, videoTypeId]);
@@ -155,8 +164,8 @@ export default function Annotate() {
         }
     }
 
-    function handleAddAnnotation() {
-        if (selectedOption === options[0].nome) {
+    function handleAddEvent() {
+        if (selectedOption === options[0].name) {
             toast.error("Selecione uma opção válida.");
             return;
         }
@@ -168,56 +177,37 @@ export default function Annotate() {
             toast.error("A opção selecionada não é condizente com o intervalo selecionado.");
             return;
         }
-        let newAnnotation: AnnotationModel;
         let frames = []
         if (selectedFlag === 'pontual') frames = [currentFrame];
         else frames = [initialFrame, endFrame];
-        newAnnotation = {
+        const newEvent: EventModel = {
             fk_id_event_type: 1,
             frames: frames,
         };
-
-        setAnnotations((prevAnnotations) => [...prevAnnotations, newAnnotation]);
+        annotation.events ? annotation.events.push(newEvent) : annotation.events = [newEvent];
+        setAnnotation({ events: annotation.events, results: annotation.results });
         toast.success("Anotação adicionada com sucesso!");
     }
 
-    function handleRemoveAnnotation(index: number) {
-        const updatedAnnotations = annotations.filter((_, i) => i !== index);
-        setAnnotations(updatedAnnotations);
+    function handleRemoveEvent(index: number) {
+        const updatedAnnotations = annotation.events.filter((_, i) => i !== index);
+        setAnnotation({ ...annotation, events: updatedAnnotations });
 
-        // Simulação de salvar a anotação removida (substituir com lógica de API)
-        fetch(`/videos/${id}/save-annotation`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ annotations: updatedAnnotations }),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao salvar anotações.');
-                }
-                toast.success('Anotação removida com sucesso!');
-            })
-            .catch(() => toast.error('Erro ao remover anotação.'));
-    }
-
-    async function handleSaveAnnotation() {
-        await fetch(annotationUrlPath, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                events: annotations,
-                atypicalities: atypicalities
-            })
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao salvar anotações.');
-            }
-            toast.success('Anotações salvas com sucesso!');
-        }).catch(() => toast.error('Erro ao salvar anotações.'));
+        // // Simulação de salvar a anotação removida (substituir com lógica de API)
+        // fetch(`/videos/${id}/save-annotation`, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({ annotations: updatedAnnotations }),
+        // })
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('Erro ao salvar anotações.');
+        //         }
+        //         toast.success('Anotação removida com sucesso!');
+        //     })
+        //     .catch(() => toast.error('Erro ao remover anotação.'));
     }
 
     return (
@@ -248,7 +238,7 @@ export default function Annotate() {
                                             <label htmlFor="annotation-options" className="mb-2">Selecione uma opção:</label>
                                             <select id="annotation-options" className="bg-gray-700 text-white rounded-lg px-4 py-2" value={selectedOption} onChange={handleOptionChange}>
                                                 {options.map((option, index) => (
-                                                    <option key={index} value={option.nome}>{option.nome}</option>
+                                                    <option key={index} value={option.name}>{option.name}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -257,7 +247,7 @@ export default function Annotate() {
                                         <button onClick={() => _navigate('/')} className="bg-gray-700 hover:bg-gray-500 text-white rounded-lg px-6 py-2 text-md">
                                             Voltar
                                         </button>
-                                        <button onClick={handleAddAnnotation} className="bg-blue-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md">
+                                        <button onClick={handleAddEvent} className="bg-blue-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md">
                                             Adicionar
                                         </button>
                                     </div>
@@ -277,7 +267,7 @@ export default function Annotate() {
                                             <label htmlFor="annotation-options" className="mb-2">Selecione uma opção:</label>
                                             <select id="annotation-options" className="bg-gray-700 text-white rounded-lg px-4 py-2" value={selectedOption} onChange={handleOptionChange}>
                                                 {options.map((option, index) => (
-                                                    <option key={index} value={option.nome}>{option.nome}</option>
+                                                    <option key={index} value={option.name}>{option.name}</option>
                                                 ))}
                                             </select>
                                         </div>
@@ -286,7 +276,7 @@ export default function Annotate() {
                                         <button onClick={() => _navigate('/')} className="bg-gray-700 hover:bg-gray-500 text-white rounded-lg px-6 py-2 text-md">
                                             Voltar
                                         </button>
-                                        <button onClick={handleAddAnnotation} className="bg-blue-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md">
+                                        <button onClick={handleAddEvent} className="bg-blue-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md">
                                             Adicionar
                                         </button>
                                     </div>
@@ -301,7 +291,7 @@ export default function Annotate() {
                     ) : (
                         <div className="flex flex-col justify-between h-full">
                             <div className="flex-grow">
-                                <T_Container data={annotations} option="edit" onRemove={handleRemoveAnnotation} type="annotation"/>
+                                <EventsContainer data={annotation.events} option="edit" onRemove={handleRemoveEvent}/>
                             </div>
                             <div className="flex justify-between items-end">
                                 <div />
@@ -309,7 +299,7 @@ export default function Annotate() {
                                     Anotar Conclusões
                                 </button>
                                 {readAtipycalityModal && (
-                                    <div><AtypicalityModal id={Number(id)} videoTypeId={Number(videoTypeId)} isOpen={true} onSave={handleSaveAnnotation} onClose={() => setReadAtypecityModal(false)} /></div>
+                                    <div><ResultModal id={Number(id)} videoTypeId={Number(videoTypeId)} isOpen={true} annotation={annotation} onClose={() => setReadAtypecityModal(false)} /></div>
                                 )}
                             </div>
                         </div>
