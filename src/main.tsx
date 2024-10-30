@@ -2,17 +2,14 @@ import ReactDOM from 'react-dom/client'
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+// import { AuthProvider } from './context/AuthContext';
 import Login from './pages/Login/login';
 import Home from './pages/Home/home';
 import ErrorPage from './pages/ErrorPage/errorPage';
 import About from './pages/About/about';
 import './global.css';
 import Annotate from './pages/Annotate/annotate';
-import { PrivateRoutes } from './utils/PrivateRoutes';
-// import * as dotenv from 'dotenv';
-
-// dotenv.config({ path: '.env' });
+// import { PrivateRoutes } from './utils/PrivateRoutes';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.Fragment>

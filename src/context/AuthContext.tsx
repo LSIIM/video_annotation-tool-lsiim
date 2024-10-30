@@ -3,7 +3,7 @@ import { createContext, useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 // import { Navigate } from "react-router-dom";
 
-interface AuthContextModel extends UserModel {
+interface AuthContextModel {
     isAuthenticated: boolean;
     login: (password: string) => string | void;
     logout: () => void;
@@ -36,6 +36,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
         localStorage.setItem("@Auth.Data", JSON.stringify({ id:1, name: "LSIIM" }));
         setUserData({id: 1, name: "LSIIM" });
         setIsAuthenticated(true);
+        return;
     }, []);
 
     const Logout = useCallback(() => {

@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
-import { AnnotationModel, ResultModel, ResultOptionsModel } from "@/models/models";
-import { Trash2 } from "lucide-react";
+import { AnnotationModel, ResultModel } from "@/models/models";
+// import { Trash2 } from "lucide-react";
 
 interface Props {
     annotation: AnnotationModel;
-    onRemove: (index: number) => void;
+    // onRemove: (index: number) => void;
 }
 
-export default function ResultsContainer({ annotation, onRemove }: Props) {
+export default function ResultsContainer({ annotation }: Props) {
     const [results, setResults] = useState<ResultModel[]>(annotation.results || []);
     const [resultOptions, setResultOptions] = useState<ResultModel[]>([]);
-    const [selectedResult, setSelectedResult] = useState<string>("");
-    const [selectedOption, setSelectedOption] = useState<string | null>(null);
-    const [additionalOptions, setAdditionalOptions] = useState<ResultOptionsModel[]>([]);
     const [toggles, setToggles] = useState<boolean[]>([]);
+    // const [selectedResult, setSelectedResult] = useState<string>("");
+    // const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    // const [additionalOptions, setAdditionalOptions] = useState<ResultOptionsModel[]>([]);
 
     useEffect(() => {
         loadOptions();
@@ -22,6 +22,7 @@ export default function ResultsContainer({ annotation, onRemove }: Props) {
 
     async function loadResults() {
         setResults(annotation.results || []);
+        console.log("Results loaded:", results);
     }
 
     async function loadOptions() {
@@ -38,42 +39,42 @@ export default function ResultsContainer({ annotation, onRemove }: Props) {
         }
     }
 
-    function removeResult(index: number) {
-        onRemove(index);
-        const updatedToggles = [...toggles];
-        updatedToggles.splice(index, 1);
-        setToggles(updatedToggles);
-    }
+    // function removeResult(index: number) {
+    //     onRemove(index);
+    //     const updatedToggles = [...toggles];
+    //     updatedToggles.splice(index, 1);
+    //     setToggles(updatedToggles);
+    // }
 
-    function handleAddResult() {
-        const selected = resultOptions.find((option) => option.name === selectedResult);
-        if (!selected) return;
+    // function handleAddResult() {
+    //     const selected = resultOptions.find((option) => option.name === selectedResult);
+    //     if (!selected) return;
 
-        const newResult: ResultModel = {
-            name: selectedResult,
-            description: "",
-            resultTypesOptions: selected.resultTypesOptions || []
-        };
+    //     const newResult: ResultModel = {
+    //         name: selectedResult,
+    //         description: "",
+    //         resultTypesOptions: selected.resultTypesOptions || []
+    //     };
 
-        setResults([...results, newResult]);
-        setSelectedResult("");
-        setSelectedOption(null);
-        setAdditionalOptions([]);
-        setToggles([...toggles, false]); // Adiciona um toggle desativado para o novo resultado
-    }
+    //     setResults([...results, newResult]);
+    //     setSelectedResult("");
+    //     setSelectedOption(null);
+    //     setAdditionalOptions([]);
+    //     setToggles([...toggles, false]); // Adiciona um toggle desativado para o novo resultado
+    // }
 
-    function handleResultChange(event: React.ChangeEvent<HTMLSelectElement>) {
-        const selectedName = event.target.value;
-        setSelectedResult(selectedName);
+    // function handleResultChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    //     const selectedName = event.target.value;
+    //     setSelectedResult(selectedName);
 
-        const selected = resultOptions.find((option) => option.name === selectedName);
-        setAdditionalOptions(selected?.resultTypesOptions || []);
-        setSelectedOption(null);
-    }
+    //     const selected = resultOptions.find((option) => option.name === selectedName);
+    //     setAdditionalOptions(selected?.resultTypesOptions || []);
+    //     setSelectedOption(null);
+    // }
 
-    function handleOptionChange(event: React.ChangeEvent<HTMLSelectElement>) {
-        setSelectedOption(event.target.value);
-    }
+    // function handleOptionChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    //     setSelectedOption(event.target.value);
+    // }
 
     function toggleOption(index: number) {
         const updatedToggles = [...toggles];
@@ -84,7 +85,7 @@ export default function ResultsContainer({ annotation, onRemove }: Props) {
     return (
         <div className="flex flex-col mt-2 mr-2">
             <h2 className="text-xl font-bold mb-4">Conclusões</h2>
-            <div>
+            <div className="overflow-y-auto">
                 {resultOptions.map((result, index) => (
                     <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex items-center justify-between mr-2 gap-8">
                         <div className="flex items-center">

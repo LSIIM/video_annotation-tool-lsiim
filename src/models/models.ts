@@ -29,3 +29,8 @@ export interface OptionsModel{
     description: string;
     isTemporal: boolean;
 }
+
+export interface UserModel {
+    id: number;
+    name: string;
+}
