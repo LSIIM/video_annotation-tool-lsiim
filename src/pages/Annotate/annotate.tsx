@@ -256,7 +256,7 @@ export default function Annotate() {
                         </>
                     ) : (
                         <div id="video-controller" className="flex flex-col items-center">
-                            <video ref={videoRef} id="my-video" controls src={`/videos/${id}/record.mp4`} className="w-[40%] h-auto rounded-lg shadow-lg mb-4" />
+                            <video ref={videoRef} id="my-video" controls src={videoPath ? videoPath : ""} className="w-[40%] h-auto rounded-lg shadow-lg mb-4" />
                             <div id="actions-container" className="flex space-x-8">
                                 <div id="frame-button-container">
                                     <div className="flex-col">
