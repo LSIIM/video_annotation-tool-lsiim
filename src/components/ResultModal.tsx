@@ -15,7 +15,6 @@ interface Props {
 export default function ResultModal({ isOpen, id, onClose, annotation }: Props) {
   const [results, setResults] = useState<ResultModel[]>(annotation.results || []);
   const [resultOptions, setResultOptions] = useState<ResultModel[]>([]);
-  const [toggles, setToggles] = useState<boolean[]>([]);
 
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
   const urlPath = apiPath + `/v1/recording/${id}/annotation`;
@@ -73,21 +72,15 @@ export default function ResultModal({ isOpen, id, onClose, annotation }: Props) 
     }
   }
 
-  function toggleOption(index: number) {
-    const updatedToggles = [...toggles];
-    updatedToggles[index] = !updatedToggles[index];
-    setToggles(updatedToggles);
-  }
-
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="flex-col justify-center items-center bg-slate-500 rounded-lg focus:outline-none w-3/4 h-3/4"
+      className="flex-col justify-center items-center bg-slate-500 rounded-lg focus:outline-none w-3/4 h-4/5"
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
-      <div id="containers" className="flex ml-4 h-4/5 justify-between">
-        <div className="flex flex-col mt-2 mr-2">
+      <div id="containers" className="flex m-2 h-[85%] justify-between">
+        <div className="flex flex-col mt-2 mx-2 bg-red-500">
           <h2 className="text-xl font-bold mb-4">Conclusões</h2>
           <div className="overflow-y-auto">
             {resultOptions.map((result, index) => (
@@ -106,16 +99,30 @@ export default function ResultModal({ isOpen, id, onClose, annotation }: Props) 
                       ))}
                     </select>
                   ) : (
-                    <button onClick={() => toggleOption(index)} className={`px-4 py-2 rounded-lg ${toggles[index] ? 'bg-green-500' : 'bg-slate-800'} w-36`}>
-                      {toggles[index] ? 'Detectado' : 'Não detectado'}
-                    </button>
+                    <input
+                      type="number"
+                      placeholder="Insira o valor"
+                      value={results[index]?.scalar || ''}
+                      onChange={(e) => {
+                        const updatedResults = [...results];
+                        updatedResults[index] = {
+                          ...updatedResults[index],
+                          scalar: parseFloat(e.target.value),
+                        };
+                        setResults(updatedResults);
+                      }}
+                      className="bg-gray-700 text-white rounded-lg px-4 py-2 w-36"
+                    />
                   )}
                 </div>
               </div>
             ))}
+
           </div>
         </div>
-        <EventsContainer data={annotation.events} option="" onRemove={() => { }} />
+        <div className='bg-green-500'>
+          <EventsContainer data={annotation.events} option="" onRemove={() => { } }/>
+        </div>
       </div>
 
       <div className='flex space-x-4 justify-end m-4'>

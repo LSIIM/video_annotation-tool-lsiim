@@ -41,11 +41,11 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
       className="flex-col justify-center items-center bg-slate-500 rounded-lg focus:outline-none"
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
-      <div id="video-controller" className="flex ml-4">
+      <div id="video-controller" className="flex ml-4 my-2">
         <EventContainer data={annotations} onRemove={() => { }} option="see"/>
       </div>
 
-      <div className='flex space-x-4 justify-center mb-4'>
+      <div className='flex space-x-4 justify-center mb-3 mx-2'>
         <button onClick={onClose} className="bg-gray-400 rounded-[30px] hover:bg-gray-600 px-6 py-2 text-xl">Fechar</button>
         <button onClick={() => _navigate(`/annotate/${id}`)} className="bg-green-500/90 rounded-[30px] hover:bg-green-800 px-6 py-2 text-xl">Anotar</button>
       </div>

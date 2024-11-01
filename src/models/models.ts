@@ -7,6 +7,7 @@ export interface EventModel {
 export interface ResultModel {
     name: string;
     description: string;
+    scalar: number;
     resultTypesOptions: ResultOptionsModel[];
 }
 
