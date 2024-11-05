@@ -8,7 +8,7 @@ import { AnnotationModel, EventModel, OptionsModel } from "@/models/models";
 import ResultModal from "@/components/ResultModal";
 
 export default function Annotate() {
-    const [annotation, setAnnotation] = useState<AnnotationModel>({comment: "", projectVideoTypeId: 0, events: [], results: [] });
+    const [annotation, setAnnotation] = useState<AnnotationModel>({comment: "", recordingVideoId: 0, events: [], results: [] });
     const [loading, setLoading] = useState(true);
     const [totalFrames, setTotalFrames] = useState(100);
     const [currentFrame, setCurrentFrame] = useState(1);
@@ -24,7 +24,7 @@ export default function Annotate() {
     const location = useLocation();
     const _navigate = useNavigate();
 
-    const { videoTypeId, projectId } = location.state;
+    const { videoTypeId } = location.state;
     const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
     const annotationUrlPath = apiPath + `/v1/recording/${id}/annotation`;
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -49,11 +49,11 @@ export default function Annotate() {
 
             const data = await response.json();
             const video = data.videos.find((v: { url: string }) => v.url.includes(`${videoTypeId}.mp4`));
-            if (video) {
-                setVideoPath(video.url);
-            } else {
-                throw new Error("Vídeo não encontrado.");
-            }
+            
+            if (video) setVideoPath(video.url);
+            else throw new Error("Vídeo não encontrado.");
+
+            if()
         } catch (error) {
             toast.error("Erro ao carregar o vídeo.");
         }
@@ -67,7 +67,7 @@ export default function Annotate() {
             setAnnotation(data);
             if (data.events.length>0) setHadAnnotation(true);
         } catch (error) {
-            setAnnotation({comment: "", projectVideoTypeId: 0, events: [], results: [] });
+            setAnnotation({comment: "", recordingVideoId: 0, events: [], results: [] });
             toast.error("Nenhuma anotação encontrada.");
         }finally{
             console.log(hadAnnotation);
@@ -188,7 +188,7 @@ export default function Annotate() {
             frames: frames,
         };
         annotation.events ? annotation.events.push(newEvent) : annotation.events = [newEvent];
-        setAnnotation({ projectVideoTypeId:projectId, comment: annotation.comment, events: annotation.events, results: annotation.results });
+        setAnnotation({ recordingVideoId, comment: annotation.comment, events: annotation.events, results: annotation.results });
         toast.success("Anotação adicionada com sucesso!");
     }
 
@@ -302,7 +302,7 @@ export default function Annotate() {
                                     Anotar Conclusões
                                 </button>
                                 {readAtipycalityModal && (
-                                    <div><ResultModal id={Number(id)} videoTypeId={Number(videoTypeId)} hadAnnotation={hadAnnotation} projectId={projectId} isOpen={true} annotation={annotation} onClose={() => setReadAtypecityModal(false)} /></div>
+                                    <div><ResultModal id={Number(id)} videoTypeId={Number(videoTypeId)} hadAnnotation={hadAnnotation} recordingVideoId={recordingVideoId} isOpen={true} annotation={annotation} onClose={() => setReadAtypecityModal(false)} /></div>
                                 )}
                             </div>
                         </div>

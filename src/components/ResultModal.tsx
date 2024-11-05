@@ -8,13 +8,13 @@ interface Props {
   isOpen: boolean;
   id: number;
   videoTypeId: number;
-  projectId: number;
+  recordingVideoId: number;
   onClose: () => void;
   hadAnnotation: boolean;
   annotation: AnnotationModel;
 }
 
-export default function ResultModal({ isOpen, id, onClose, annotation, projectId, hadAnnotation }: Props) {
+export default function ResultModal({ isOpen, id, onClose, annotation, recordingVideoId, hadAnnotation }: Props) {
   const [results, setResults] = useState<ResultModel[]>(annotation.results || []);
   const [resultOptions, setResultOptions] = useState<ResultModel[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
@@ -61,7 +61,7 @@ export default function ResultModal({ isOpen, id, onClose, annotation, projectId
     try {
       jsonBody = {
         "data": [{
-          "projectVideoTypeId": projectId,
+          "recordingVideoId": recordingVideoId,
           "comment": "",
           "events": annotation.events?annotation.events:[],
           "results": filledResults

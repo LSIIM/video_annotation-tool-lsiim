@@ -1,7 +1,6 @@
 export interface EventModel {
     eventTypeId: number;
     frames: number[];
-    fk_id_annotation?: number;
 }
 
 export interface ResultModel {
@@ -22,7 +21,7 @@ export interface ResultOptionsModel {
 
 export interface AnnotationModel {
     comment: string;
-    projectVideoTypeId: number;
+    recordingVideoId: number;
     events: EventModel[];
     results: ResultModel[];
 }
