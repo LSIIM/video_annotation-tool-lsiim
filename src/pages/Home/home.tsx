@@ -86,7 +86,13 @@ export default function Home() {
                   fileInfo={file} 
                   onAnnotate={() => {
                     const videoTypeId = file.videos.find(v => v.isMain)?.url.split('/').pop()?.split('.')[0];
-                    _navigate(`annotate/${file.id}?video_type_id=${videoTypeId}`);
+                    _navigate(`annotate/${file.id}`,{
+                      state: {
+                        videoTypeId: videoTypeId,
+                        projectId: file.projectId
+                      }
+                    });
+                    console.log("TESTE: ", file.projectId);
                   }} 
                   onVisualize={() => { openModal(file.id) }} 
                   />  

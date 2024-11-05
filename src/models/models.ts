@@ -1,5 +1,5 @@
 export interface EventModel {
-    fk_id_event_type: number;
+    eventTypeId: number;
     frames: number[];
     fk_id_annotation?: number;
 }
@@ -21,11 +21,14 @@ export interface ResultOptionsModel {
 }
 
 export interface AnnotationModel {
+    comment: string;
+    projectVideoTypeId: number;
     events: EventModel[];
     results: ResultModel[];
 }
 
 export interface OptionsModel{
+    id: number;
     name: string;
     description: string;
     isTemporal: boolean;

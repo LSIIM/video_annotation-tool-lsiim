@@ -2,14 +2,13 @@ import EventsContainer from "@/components/EventsContainer";
 import FrameController from "@/components/FrameController";
 import Header from "@/components/Header";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { AnnotationModel, EventModel, OptionsModel } from "@/models/models";
-import { useSearchParams } from "react-router-dom";
 import ResultModal from "@/components/ResultModal";
 
 export default function Annotate() {
-    const [annotation, setAnnotation] = useState<AnnotationModel>({ events: [], results: [] });
+    const [annotation, setAnnotation] = useState<AnnotationModel>({comment: "", projectVideoTypeId: 0, events: [], results: [] });
     const [loading, setLoading] = useState(true);
     const [totalFrames, setTotalFrames] = useState(100);
     const [currentFrame, setCurrentFrame] = useState(1);
@@ -19,14 +18,15 @@ export default function Annotate() {
     const [videoPath, setVideoPath] = useState<string>("");
     const [selectedOption, setSelectedOption] = useState("Selecione uma opção");
     const [readAtipycalityModal, setReadAtypecityModal] = useState<boolean>(false);
+    const [hadAnnotation, setHadAnnotation] = useState<boolean>(false);
     const [options, setOptions] = useState<OptionsModel[]>([]);
-
     const { id } = useParams();
-    const [searchParams] = useSearchParams();
-    const videoTypeId = searchParams.get("video_type_id");
+    const location = useLocation();
+    const _navigate = useNavigate();
+
+    const { videoTypeId, projectId } = location.state;
     const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
     const annotationUrlPath = apiPath + `/v1/recording/${id}/annotation`;
-    const _navigate = useNavigate();
     const videoRef = useRef<HTMLVideoElement>(null);
     const videoRefInicial = useRef<HTMLVideoElement>(null);
     const videoRefFinal = useRef<HTMLVideoElement>(null);
@@ -64,10 +64,13 @@ export default function Annotate() {
             const response = await fetch(annotationUrlPath);
             if (!response.ok) throw new Error("Arquivo não encontrado.");
             const data: AnnotationModel = await response.json();
-            setAnnotation(data);//data.annotations || []);
+            setAnnotation(data);
+            if (data.events.length>0) setHadAnnotation(true);
         } catch (error) {
-            setAnnotation({ events: [], results: [] });
+            setAnnotation({comment: "", projectVideoTypeId: 0, events: [], results: [] });
             toast.error("Nenhuma anotação encontrada.");
+        }finally{
+            console.log(hadAnnotation);
         }
     };
 
@@ -76,7 +79,7 @@ export default function Annotate() {
             const response = await fetch(`${apiPath}/v1/event-type`);
             if (!response.ok) throw new Error("Erro ao buscar opções de anotação.");
             const data = await response.json();
-            const opt: OptionsModel[] = [{ name: "Selecione uma opção", description: "placeholder", isTemporal: true }];
+            const opt: OptionsModel[] = [{ id:0, name: "Selecione uma opção", description: "placeholder", isTemporal: true }];
             for (const option in data) { opt.push(data[option]) }
             setOptions(opt);
         } catch (error) {
@@ -181,11 +184,11 @@ export default function Annotate() {
         if (selectedFlag === 'pontual') frames = [currentFrame];
         else frames = [initialFrame, endFrame];
         const newEvent: EventModel = {
-            fk_id_event_type: 1,
+            eventTypeId: options.find(option => option.name === selectedOption)?.id || 0,
             frames: frames,
         };
         annotation.events ? annotation.events.push(newEvent) : annotation.events = [newEvent];
-        setAnnotation({ events: annotation.events, results: annotation.results });
+        setAnnotation({ projectVideoTypeId:projectId, comment: annotation.comment, events: annotation.events, results: annotation.results });
         toast.success("Anotação adicionada com sucesso!");
     }
 
@@ -299,7 +302,7 @@ export default function Annotate() {
                                     Anotar Conclusões
                                 </button>
                                 {readAtipycalityModal && (
-                                    <div><ResultModal id={Number(id)} videoTypeId={Number(videoTypeId)} isOpen={true} annotation={annotation} onClose={() => setReadAtypecityModal(false)} /></div>
+                                    <div><ResultModal id={Number(id)} videoTypeId={Number(videoTypeId)} hadAnnotation={hadAnnotation} projectId={projectId} isOpen={true} annotation={annotation} onClose={() => setReadAtypecityModal(false)} /></div>
                                 )}
                             </div>
                         </div>

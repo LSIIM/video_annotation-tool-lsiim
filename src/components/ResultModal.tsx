@@ -8,16 +8,19 @@ interface Props {
   isOpen: boolean;
   id: number;
   videoTypeId: number;
+  projectId: number;
   onClose: () => void;
+  hadAnnotation: boolean;
   annotation: AnnotationModel;
 }
 
-export default function ResultModal({ isOpen, id, onClose, annotation }: Props) {
+export default function ResultModal({ isOpen, id, onClose, annotation, projectId, hadAnnotation }: Props) {
   const [results, setResults] = useState<ResultModel[]>(annotation.results || []);
   const [resultOptions, setResultOptions] = useState<ResultModel[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
 
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
-  const urlPath = apiPath + `/v1/recording/${id}/annotation`;
+  const urlPath = `${apiPath}/v1/recording/${id}/annotation`;
 
   useEffect(() => {
     loadOptions();
@@ -27,12 +30,12 @@ export default function ResultModal({ isOpen, id, onClose, annotation }: Props) 
   async function loadResults() {
     setResults(annotation.results || []);
     console.log("Results loaded:", results);
+    console.log("Annotation:", annotation);
+    console.log("HadAnnotation:", hadAnnotation);
   }
 
   async function loadOptions() {
-    const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
     const urlPath = `${apiPath}/v1/result-type`;
-
     try {
       const response = await fetch(urlPath);
       const options: ResultModel[] = await response.json();
@@ -44,20 +47,32 @@ export default function ResultModal({ isOpen, id, onClose, annotation }: Props) 
   }
 
   const handleSaveAnnotation = async () => {
+    const filledResults = results.map((result, index) => {
+      const selectedOption = selectedOptions[index];
+      return result.resultTypesOptions && selectedOption && selectedOption !== 'Selecione uma opção' ?
+        { ...result, selectedValue: selectedOption }
+        :
+        result.scalar !== undefined && !isNaN(result.scalar) ?
+          { ...result, scalar: result.scalar }
+          :
+          null;
+    }).filter(result => result !== null);
+    let jsonBody = {};
     try {
+      jsonBody = {
+        "data": [{
+          "projectVideoTypeId": projectId,
+          "comment": "",
+          "events": annotation.events?annotation.events:[],
+          "results": filledResults
+        }]
+      }
       const response = await fetch(urlPath, {
-        method: 'POST',
+        method: hadAnnotation?'PUT':'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          "data": [{
-            "projectVideoTypeId": 1,
-            "comment": "",
-            "events": annotation.events,
-            "results": annotation.results
-          }]
-        }),
+        body: JSON.stringify(jsonBody),
       });
 
       if (!response.ok) {
@@ -68,9 +83,9 @@ export default function ResultModal({ isOpen, id, onClose, annotation }: Props) 
       toast.error('Erro ao salvar anotação.');
       console.log(error);
     } finally {
-      console.log("Essa é a anotação:", annotation);
+      console.log("Essa é a anotação:", jsonBody);
     }
-  }
+  };
 
   return (
     <Modal
@@ -80,7 +95,7 @@ export default function ResultModal({ isOpen, id, onClose, annotation }: Props) 
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="containers" className="flex m-2 h-[85%] justify-between">
-        <div className="flex flex-col mt-2 mx-2 bg-red-500">
+        <div className="flex flex-col mt-2 mx-2">
           <h2 className="text-xl font-bold mb-4">Conclusões</h2>
           <div className="overflow-y-auto">
             {resultOptions.map((result, index) => (
@@ -90,8 +105,14 @@ export default function ResultModal({ isOpen, id, onClose, annotation }: Props) 
                 </div>
                 <div className="flex items-center">
                   {result.resultTypesOptions && result.resultTypesOptions.length > 0 ? (
-                    <select className="bg-gray-700 text-white rounded-lg px-4 py-2">
-                      <option value="">Selecione uma opção</option>
+                    <select
+                      className="bg-gray-700 text-white rounded-lg px-4 py-2"
+                      onChange={(e) => {
+                        setSelectedOptions({ ...selectedOptions, [index]: e.target.value });
+                      }}
+                      value={selectedOptions[index] || 'Selecione uma opção'}
+                    >
+                      <option value="Selecione uma opção">Selecione uma opção</option>
                       {result.resultTypesOptions.map((opt) => (
                         <option key={opt.name} value={opt.name}>
                           {opt.name}
@@ -117,11 +138,10 @@ export default function ResultModal({ isOpen, id, onClose, annotation }: Props) 
                 </div>
               </div>
             ))}
-
           </div>
         </div>
-        <div className='bg-green-500'>
-          <EventsContainer data={annotation.events} option="" onRemove={() => { } }/>
+        <div className='w-1/5'>
+          <EventsContainer data={annotation.events} option="" onRemove={() => { }} />
         </div>
       </div>
 

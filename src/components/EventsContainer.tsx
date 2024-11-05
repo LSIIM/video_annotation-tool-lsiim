@@ -24,7 +24,7 @@ export default function EventContainer ({ data, option, onRemove }: Props) {
     }
     
     return (
-        <div className="flex flex-col mt-2 mr-2 bg-red-500">
+        <div className="flex flex-col mt-2 mr-2">
             <h2 className="text-xl font-bold mb-4">Eventos</h2>
             <div className="overflow-y-auto max-h-96">
                 {data.map((note, index) => (
