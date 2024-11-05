@@ -30,6 +30,7 @@ export interface PatientModel {
 export interface VideoModel {
   url: string;
   isMain: boolean;
+  recordingId: number;
 }
 
 export interface ProjectModel {

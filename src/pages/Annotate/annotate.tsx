@@ -6,6 +6,7 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import toast from 'react-hot-toast';
 import { AnnotationModel, EventModel, OptionsModel } from "@/models/models";
 import ResultModal from "@/components/ResultModal";
+import { RecordingModel } from "@/models/RecordingModel";
 
 export default function Annotate() {
     const [annotation, setAnnotation] = useState<AnnotationModel>({comment: "", recordingVideoId: 0, events: [], results: [] });
@@ -20,6 +21,7 @@ export default function Annotate() {
     const [readAtipycalityModal, setReadAtypecityModal] = useState<boolean>(false);
     const [hadAnnotation, setHadAnnotation] = useState<boolean>(false);
     const [options, setOptions] = useState<OptionsModel[]>([]);
+    const [recordingVideoId, setRecordingVideoId] = useState<number>(0);
     const { id } = useParams();
     const location = useLocation();
     const _navigate = useNavigate();
@@ -47,13 +49,14 @@ export default function Annotate() {
             const response = await fetch(`${apiPath}/v1/recording/${id}`);
             if (!response.ok) throw new Error("Erro ao buscar dados do vídeo");
 
-            const data = await response.json();
+            const data:RecordingModel = await response.json();
             const video = data.videos.find((v: { url: string }) => v.url.includes(`${videoTypeId}.mp4`));
             
-            if (video) setVideoPath(video.url);
+            if (video){
+                setVideoPath(video.url);
+                setRecordingVideoId(video.recordingId);
+            }
             else throw new Error("Vídeo não encontrado.");
-
-            if()
         } catch (error) {
             toast.error("Erro ao carregar o vídeo.");
         }
