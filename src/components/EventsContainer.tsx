@@ -18,7 +18,7 @@ export default function EventContainer ({ data, option, onRemove }: Props) {
             </div>
         );
     }
-
+    console.log("DATA AQUI: ", data);
     function removeEvent(index: number) {
         onRemove(index);
     }

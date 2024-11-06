@@ -14,74 +14,61 @@ export default function Home() {
   const [readAnnotationModal, setReadAnnotationModal] = useState<{ [key: number]: boolean }>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(15);
-  // const [searchTerm, setSearchTerm] = useState("");
-  const [files, setFiles] = useState<RecordingModel[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [rawFiles, setRawFiles] = useState<RecordingModel[]>([]);
+  const [finalFiles, setFinalFiles] = useState<RecordingModel[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
 
+  const openModal = (videoId: number) => {setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: true }));};
+  const closeModal = (videoId: number) => {setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: false }));};
+  const handlePageChange = (pageNumber: number) => {setCurrentPage(pageNumber);};
+  
   const fetchVideos = async () => {
     try {
       const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
       const urlPath = apiPath + `/v1/recording`;
-      console.log("URLPATH", urlPath);
       const response = await fetch(urlPath);
+      
       if (!response.ok) throw new Error("Erro ao buscar vídeos");
-      console.log("RESPONSE", response);
       const data = await response.json();
-      const finalFiles = data.filter((file: RecordingModel) => file.recordingsVideos.length > 0);
-      setFiles(finalFiles);
+      const rawFiles = data.filter((file: RecordingModel) => file.recordingsVideos.length > 0);
+      setRawFiles(data);
+      setFinalFiles(rawFiles.slice(0, itemsPerPage));
     } catch (error) {
       console.log("Erro na requisição:", error);
       toast.error("Erro ao buscar vídeos na api");
     }
   };
+  
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+  
+  useEffect(() => {
+    setCurrentPage(1);
+    const paginatedFiles = rawFiles.slice(0, itemsPerPage);
+    if (searchTerm.trim() === "") setFinalFiles(paginatedFiles);
+    else {
+      const filtered = paginatedFiles.filter(file => file.patient.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      setFinalFiles(filtered);
+    }
+    setTotalPages(Math.ceil(finalFiles.length / itemsPerPage));
+  }, [searchTerm]);
 
   useEffect(() => {
-    if (loading) {
-      setLoading(false);
-      fetchVideos();
-      console.log("CHAMOU O FETCH");
-    }
-  }, [loading]);
-
-  const openModal = (videoId: number) => {
-    setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: true }));
-  };
-
-  const closeModal = (videoId: number) => {
-    setReadAnnotationModal(prevState => ({ ...prevState, [videoId]: false }));
-  };
-
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedFiles = files.slice(startIndex, endIndex);
-
-  // const handleSearch = (term: string) => {
-  //   setSearchTerm(term);
-  //   setCurrentPage(1);
-  //   if (term.trim() === "") {
-  //     setFilteredFiles(files);
-  //   } else {
-  //     const filtered = files.filter(file => file.babyName.toLowerCase().includes(term.toLowerCase()));
-  //     setFilteredFiles(filtered);
-  //   }
-  // };
-
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const totalPages = Math.ceil(files.length / itemsPerPage);
-
+    fetchVideos();
+  }, []);
+  
   return (
     <div className='flex-col h-screen w-screen overflow-x-hidden'>
       <Header />
       <div className='flex justify-center'>
-        <SearchBar onClick={() => { }} />
+        <SearchBar onClick={handleSearch} />
       </div>
-      {files.length > 0 ? (
+      {finalFiles.length > 0 ? (
         <div>
-          <div id="paging-grid" className={`grid gap-5 m-5 my-5 ${paginatedFiles.length < 3 ? 'grid-cols-[repeat(auto-fit,_minmax(475px,475px))]' : 'grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))]'} `}>
-            {paginatedFiles.map((file, i) => (
+          <div id="paging-grid" className={`grid gap-5 m-5 my-5 ${finalFiles.length < 3 ? 'grid-cols-[repeat(auto-fit,_minmax(475px,475px))]' : 'grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))]'} `}>
+            {finalFiles.map((file, i) => (
               <div key={i}>
                 <Card 
                   fileInfo={file} 

@@ -22,7 +22,7 @@ export interface ResultOptionsModel {
 }
 
 export interface AnnotationModel {
-    comment: string;
+    comment?: string;
     recordingVideoId: number;
     events: EventModel[];
     results: ResultModel[];

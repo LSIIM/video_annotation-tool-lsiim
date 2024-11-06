@@ -23,7 +23,8 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
       try {
         const response = await fetch(urlPath);
         const data = await response.json();
-        setAnnotations(data.annotations);
+        console.log("DATA", data[0].annotationVideos);
+        setAnnotations(data[0].annotationVideos.events);
       } catch (error) {
         toast.error('Erro ao carregar as anotações.');
       }
