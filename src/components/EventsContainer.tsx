@@ -30,7 +30,7 @@ export default function EventContainer ({ data, option, onRemove }: Props) {
                 {data.map((note, index) => (
                     <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex justify-between mr-2">
                         <div>
-                            <p className="font-semibold">{note.eventTypeId}</p>
+                            <p className="font-semibold">{note.name}</p>
                             {note.frames.length === 1 ? (
                                 <p>Evento pontual em {note.frames[0]}</p>
                             ) : (

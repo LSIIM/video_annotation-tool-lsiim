@@ -13,7 +13,7 @@ export interface RecordingModel {
   recordVideoTypes: [];
   createdAt: string;
   updatedAt: string;
-  videos: VideoModel[];
+  recordingsVideos: VideoModel[];
 }
 
 export interface PatientModel {
@@ -28,9 +28,13 @@ export interface PatientModel {
 }
 
 export interface VideoModel {
+  id: number;
+  projectVideoTypeId: number;
+  camIdUsed: number;
+  projectVideoType:{
+    isMain: boolean;
+  };
   url: string;
-  isMain: boolean;
-  recordingId: number;
 }
 
 export interface ProjectModel {

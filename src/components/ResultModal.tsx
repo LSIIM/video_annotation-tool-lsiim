@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react';
 interface Props {
   isOpen: boolean;
   id: number;
-  videoTypeId: number;
   recordingVideoId: number;
   onClose: () => void;
   hadAnnotation: boolean;
@@ -47,23 +46,33 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
   }
 
   const handleSaveAnnotation = async () => {
-    const filledResults = results.map((result, index) => {
-      const selectedOption = selectedOptions[index];
-      return result.resultTypesOptions && selectedOption && selectedOption !== 'Selecione uma opção' ?
-        { ...result, selectedValue: selectedOption }
-        :
-        result.scalar !== undefined && !isNaN(result.scalar) ?
-          { ...result, scalar: result.scalar }
-          :
-          null;
+    const filledResults = resultOptions.map((result, index) => {
+      const selectedOptionName = selectedOptions[index];
+        const selectedOption = result.resultTypesOptions?.find(opt => opt.name === selectedOptionName);
+  
+      if (selectedOption) {
+        return {
+          resultTypeId: result.id,             
+          resultTypeOptionId: selectedOption.id 
+        };
+      }
+  
+      return null;
     }).filter(result => result !== null);
+    const finalEvents = annotation.events.map(event => {
+      return {
+        eventTypeId: event.eventTypeId,
+        frames: event.frames
+      }
+    });
+    // console.log("Filled results:", filledResults);
     let jsonBody = {};
     try {
       jsonBody = {
         "data": [{
           "recordingVideoId": recordingVideoId,
           "comment": "",
-          "events": annotation.events?annotation.events:[],
+          "events": finalEvents,
           "results": filledResults
         }]
       }
@@ -89,6 +98,7 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
 
   return (
     <Modal
+      ariaHideApp={false}
       isOpen={isOpen}
       onRequestClose={onClose}
       className="flex-col justify-center items-center bg-slate-500 rounded-lg focus:outline-none w-3/4 h-4/5"
@@ -140,8 +150,8 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
             ))}
           </div>
         </div>
-        <div className='w-1/5'>
-          <EventsContainer data={annotation.events} option="" onRemove={() => { }} />
+        <div className='w-1/3'>
+          <EventsContainer data={annotation.events} option="edit" onRemove={() => { }} />
         </div>
       </div>
 

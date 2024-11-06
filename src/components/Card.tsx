@@ -7,7 +7,7 @@ interface Props {
 }
 
 export default function Card({ fileInfo, onAnnotate, onVisualize }: Props) {
-    const mainVideo = fileInfo.videos.find(video => video.isMain === true);
+    const mainVideo = fileInfo.recordingsVideos.find(video => video.projectVideoType.isMain);
     const videoPath = mainVideo?.url
     console.log(videoPath);
 

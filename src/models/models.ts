@@ -1,9 +1,11 @@
 export interface EventModel {
+    name: string;
     eventTypeId: number;
     frames: number[];
 }
 
 export interface ResultModel {
+    id: number;
     name: string;
     description: string;
     scalar: number;

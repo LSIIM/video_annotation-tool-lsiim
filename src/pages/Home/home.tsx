@@ -84,21 +84,11 @@ export default function Home() {
               <div key={i}>
                 <Card 
                   fileInfo={file} 
-                  onAnnotate={() => {
-                    const videoTypeId = file.videos.find(v => v.isMain)?.url.split('/').pop()?.split('.')[0];
-                    _navigate(`annotate/${file.id}`,{
-                      state: {
-                        videoTypeId: videoTypeId,
-                        projectId: file.projectId
-                      }
-                    });
-                    console.log("TESTE: ", file.projectId);
-                  }} 
+                  onAnnotate={() => {_navigate(`annotate/${file.id}`, {state: {recordingId: file.projectId}}) }} 
                   onVisualize={() => { openModal(file.id) }} 
-                  />  
-
+                />  
                 {readAnnotationModal[file.id] && (
-                  <div><AnnotationModal id={file.id} isOpen={true} onClose={() => closeModal(file.id)} /></div>
+                  <div><AnnotationModal id={file.id} isOpen={true} onClose={() => closeModal(file.id) } /></div>
                 )}
               </div>
             ))}

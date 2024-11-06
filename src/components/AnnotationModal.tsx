@@ -36,6 +36,7 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
 
   return (
     <Modal
+      ariaHideApp={false}
       isOpen={isOpen}
       onRequestClose={onClose}
       className="flex-col justify-center items-center bg-slate-500 rounded-lg focus:outline-none"
