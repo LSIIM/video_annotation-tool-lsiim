@@ -27,7 +27,8 @@ export default function Home() {
       if (!response.ok) throw new Error("Erro ao buscar vídeos");
       console.log("RESPONSE", response);
       const data = await response.json();
-      setFiles(data);
+      const finalFiles = data.filter((file: RecordingModel) => file.recordingsVideos.length > 0);
+      setFiles(finalFiles);
     } catch (error) {
       console.log("Erro na requisição:", error);
       toast.error("Erro ao buscar vídeos na api");
@@ -79,7 +80,7 @@ export default function Home() {
       </div>
       {files.length > 0 ? (
         <div>
-          <div id="paging-grid" className="grid grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))] gap-4 m-10">
+          <div id="paging-grid" className={`grid gap-5 m-5 my-5 ${paginatedFiles.length < 3 ? 'grid-cols-[repeat(auto-fit,_minmax(475px,475px))]' : 'grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))]'} `}>
             {paginatedFiles.map((file, i) => (
               <div key={i}>
                 <Card 
