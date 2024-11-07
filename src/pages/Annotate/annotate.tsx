@@ -25,7 +25,6 @@ export default function Annotate() {
     const { id } = useParams();
     const _navigate = useNavigate();
 
-    // const { videoTypeId } = location.state;
     const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
     const annotationUrlPath = apiPath + `/v1/recording/${id}/annotation`;
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -65,11 +64,13 @@ export default function Annotate() {
         try {
             const response = await fetch(annotationUrlPath);
             if (!response.ok) throw new Error("Arquivo não encontrado.");
-            const data: AnnotationModel = await response.json();
-            setAnnotation(data);
-            if (data.events.length>0) setHadAnnotation(true);
+            const data = await response.json();
+            console.log("DATA ", data.annotationVideos[0]);
+            setAnnotation(data.annotationVideos[0]);
+            if (annotation.events.length>0) setHadAnnotation(true);
         } catch (error) {
             setAnnotation({comment: "", recordingVideoId: 0, events: [], results: [] });
+            console.log("JÁ FALEI QUE DEU MERDA ", error);
             toast.error("Nenhuma anotação encontrada.");
         }finally{
             console.log(hadAnnotation);
@@ -297,7 +298,7 @@ export default function Annotate() {
                     ) : (
                         <div className="flex flex-col justify-between h-full">
                             <div className="flex-grow">
-                                <EventsContainer data={annotation.events} option="edit" onRemove={handleRemoveEvent}/>
+                                <EventsContainer data={annotation} option="edit" onRemove={handleRemoveEvent}/>
                             </div>
                             <div className="flex justify-between items-end">
                                 <div />
