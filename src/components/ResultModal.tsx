@@ -151,7 +151,7 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
           </div>
         </div>
         <div className='w-1/3'>
-          <EventsContainer data={annotation.events} option="edit" onRemove={() => { }} />
+          <EventsContainer data={annotation} option="edit" onRemove={() => { }} />
         </div>
       </div>
 
