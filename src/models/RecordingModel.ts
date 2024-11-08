@@ -35,6 +35,7 @@ export interface VideoModel {
     isMain: boolean;
   };
   url: string;
+  thumb: string;
 }
 
 export interface ProjectModel {

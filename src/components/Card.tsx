@@ -8,15 +8,13 @@ interface Props {
 
 export default function Card({ fileInfo, onAnnotate, onVisualize }: Props) {
     const mainVideo = fileInfo.recordingsVideos.find(video => video.projectVideoType.isMain);
-    const videoPath = mainVideo?.url
-    console.log(videoPath);
+    const thumbnail = mainVideo?.thumb
+    console.log(thumbnail);
 
     return (
         <section className='h-40 flex justify-between max-w-full rounded-xl bg-zinc-800'>
             <div className='w-40 overflow-hidden'>  
-                <video controls className="w-full h-full object-cover rounded-l-lg">
-                    <source src={videoPath} type="video/mp4" />
-                </video>
+                <img src={thumbnail} className="w-full h-full object-cover rounded-l-lg"/>
             </div>
             <div className="flex flex-col justify-center gap-1 mx-2 max-w-36">
                 <p><b>Video:</b><i> {fileInfo.id}</i></p>
