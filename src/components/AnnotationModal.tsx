@@ -2,7 +2,7 @@ import toast from 'react-hot-toast';
 import Modal from 'react-modal';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { EventModel } from '@/models/models';
+import { AnnotationModel } from '@/models/models';
 import EventContainer from './EventsContainer';
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export default function AnnotationModal({ isOpen, id, onClose }: Props) {
-  const [annotations, setAnnotations] = useState<EventModel[]>([]);
+  const [annotations, setAnnotations] = useState<AnnotationModel>({events: [], results: [], recordingVideoId: 0});
   const _navigate = useNavigate();
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
   const urlPath = apiPath + `/v1/recording/${id}/annotation`;
@@ -23,9 +23,10 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
       try {
         const response = await fetch(urlPath);
         const data = await response.json();
-        console.log("DATA", data[0].annotationVideos);
-        setAnnotations(data[0].annotationVideos.events);
+        console.log("DATA", data);
+        setAnnotations(data.annotationVideos[0]);
       } catch (error) {
+        console.log('Erro ao carregar as anotações:', error);
         toast.error('Erro ao carregar as anotações.');
       }
     };

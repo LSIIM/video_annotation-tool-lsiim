@@ -67,7 +67,7 @@ export default function Home() {
       </div>
       {finalFiles.length > 0 ? (
         <div>
-          <div id="paging-grid" className={`grid gap-5 m-5 my-5 ${finalFiles.length < 3 ? 'grid-cols-[repeat(auto-fit,_minmax(475px,475px))]' : 'grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))]'} `}>
+          <div id="paging-grid" className={`grid gap-5 m-5 my-5 ${finalFiles.length < 3 ? '' : 'grid-cols-[repeat(auto-fit,_minmax(475px,_1fr))]'} `}>
             {finalFiles.map((file, i) => (
               <div key={i}>
                 <Card 
