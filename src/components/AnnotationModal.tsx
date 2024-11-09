@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AnnotationModel } from '@/models/models';
 import EventContainer from './EventsContainer';
+import ResultsContainer from './ResultsContainer';
 
 interface Props {
   isOpen: boolean;
@@ -44,6 +45,7 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="video-controller" className="flex ml-4 my-2">
+        <ResultsContainer annotation={annotations} option="see"/>
         <EventContainer data={annotations} onRemove={() => { }} option="see"/>
       </div>
 

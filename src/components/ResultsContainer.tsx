@@ -1,29 +1,36 @@
 import { useState, useEffect } from "react";
-import { AnnotationModel, AnnotationResultModel, ResultModelTemplate } from "@/models/models";
+import { AnnotationModel, ResultModelTemplate } from "@/models/models";
 
 interface Props {
     annotation: AnnotationModel;
+    option: string
 }
 
-export default function ResultsContainer({ annotation }: Props) {
-    const [results, setResults] = useState<AnnotationResultModel[]>(annotation.results || []);
-    const [resultOptions, setResultOptions] = useState<ResultModelTemplate[]>([]);
+export default function ResultsContainer({ annotation, option }: Props) {
+    const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
     const [toggles, setToggles] = useState<boolean[]>([]);
+    const [resultOptions, setResultOptions] = useState<ResultModelTemplate[]>([]);
 
     useEffect(() => {
         loadOptions();
-        loadResults();
     }, []);
 
-    async function loadResults() {
-        setResults(annotation.results || []);
-        console.log("Results loaded:", results);
-    }
+    useEffect(() => {
+        loadResults();
+        console.log(selectedOptions);
+    }, [resultOptions]);
 
+    async function loadResults() {
+        if (resultOptions.length == 0) return;
+        for (const result of annotation.results || []) {
+            const resultTypeIndex = resultOptions.findIndex((option) => option.id === result.resultTypeId);
+            const resultTypeOptionSelected = resultOptions[resultTypeIndex].resultTypesOptions?.find((option) => option.id === result.resultTypeOptionId);
+            setSelectedOptions({ ...selectedOptions, [resultTypeIndex]: resultTypeOptionSelected?.name || '' });
+        }
+    }
     async function loadOptions() {
         const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
         const urlPath = `${apiPath}/v1/result-type`;
-
         try {
             const response = await fetch(urlPath);
             const options: ResultModelTemplate[] = await response.json();
@@ -45,28 +52,32 @@ export default function ResultsContainer({ annotation }: Props) {
             <h2 className="text-xl font-bold mb-4">Conclusões</h2>
             <div className="overflow-y-auto">
                 {resultOptions.map((result, index) => (
+                    selectedOptions[index] && (
                     <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex items-center justify-between mr-2 gap-8">
-                        <div className="flex items-center">
-                            <p className="font-semibold">Resultado: {result.name}</p>
-                        </div>
-                        <div className="flex items-center">
-                            {result.resultTypesOptions && result.resultTypesOptions.length > 0 ? (
-                                <select className="bg-gray-700 text-white rounded-lg px-4 py-2">
-                                    <option value="">Selecione uma opção</option>
-                                    {result.resultTypesOptions.map((opt) => (
-                                        <option key={opt.name} value={opt.name}>
-                                            {opt.name}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <button onClick={() => toggleOption(index)} className={`px-4 py-2 rounded-lg ${toggles[index] ? 'bg-green-500' : 'bg-slate-800'} w-36`}>
-                                    {toggles[index] ? 'Detectado' : 'Não detectado'}
-                                </button>
-                            )}
-                        </div>
+                            <div className="flex-col items-center">
+                                <p className="font-semibold">{result.name}:</p>
+                                <p className="italic">{selectedOptions[index]}</p>
+                            </div>
+                        {option === "edit" && (
+                            <div className="flex items-center">
+                                {result.resultTypesOptions && result.resultTypesOptions.length > 0 ? (
+                                    <select className="bg-gray-700 text-white rounded-lg px-4 py-2">
+                                        <option value="">Selecione uma opção</option>
+                                        {result.resultTypesOptions.map((opt) => (
+                                            <option key={opt.name} value={opt.name}>
+                                                {opt.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <button onClick={() => toggleOption(index)} className={`px-4 py-2 rounded-lg ${toggles[index] ? 'bg-green-500' : 'bg-slate-800'} w-36`}>
+                                        {toggles[index] ? 'Detectado' : 'Não detectado'}
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </div>
-                ))}
+                )))}
             </div>
         </div>
     );
