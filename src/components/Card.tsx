@@ -22,7 +22,7 @@ export default function Card({ fileInfo, onAnnotate, onVisualize }: Props) {
                 <p><b>Data de Captura:</b><i> {new Date(fileInfo.createdAt).toLocaleDateString()}</i></p>
             </div>
             <div className='flex flex-col justify-evenly mr-3'>
-                <button onClick={onVisualize} className='bg-indigo-500 hover:bg-indigo-700'>Ver Eventos</button>
+                <button onClick={onVisualize} className='bg-indigo-500 hover:bg-indigo-700'>Ver Anotações</button>
                 <button onClick={onAnnotate} className='bg-indigo-500 hover:bg-indigo-700'>Anotar</button>
             </div>
         </section>

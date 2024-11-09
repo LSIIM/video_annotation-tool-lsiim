@@ -4,6 +4,7 @@ import { AnnotationModel, ResultModelTemplate } from '@/models/models';
 import EventsContainer from './EventsContainer';
 import { useEffect, useState } from 'react';
 import ResultsContainer from './ResultsContainer';
+import CommentContainer from './CommentContainer';
 
 interface Props {
   isOpen: boolean;
@@ -14,12 +15,12 @@ interface Props {
 }
 
 export default function ResultModal({ isOpen, id, onClose, annotation, recordingVideoId }: Props) {
-  // const [results, setResults] = useState<AnnotationResultModel[]>(annotation.results || []);
   const [resultOptions, setResultOptions] = useState<ResultModelTemplate[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
 
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
   const urlPath = `${apiPath}/v1/recording/${id}/annotation`;
+  const size = ["w-1/4", "w-2/5", "w-1/3"];
 
   useEffect(() => {
     loadOptions();
@@ -110,12 +111,16 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="containers" className="flex m-2 h-[85%] justify-between">
-        <div className='w-1/3'>
-          <EventsContainer data={annotation} mode="edit" onRemove={() => { }} />
+        <div className={`${size[0]}`}>
+          <EventsContainer data={annotation} mode="" onRemove={() => { }} />
         </div>
-        <ResultsContainer annotation={annotation} mode="edit" />
+        <div className={`${size[1]}`}>
+          <ResultsContainer annotation={annotation} mode="edit" />
+        </div>
+        <div className={`${size[2]}`}>
+          <CommentContainer annotation={annotation} mode="edit" />
+        </div>
       </div>
-
       <div className='flex space-x-4 justify-end m-4'>
         <button onClick={onClose} className="bg-gray-400 rounded-[30px] hover:bg-gray-600 px-6 py-2 text-xl">Fechar</button>
         <button onClick={handleSaveAnnotation} className="bg-green-500/90 rounded-[30px] hover:bg-green-800 px-6 py-2 text-xl">Salvar</button>

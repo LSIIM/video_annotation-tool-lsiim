@@ -274,7 +274,7 @@ export default function Annotate() {
                             <div className="flex justify-between items-end">
                                 <div />
                                 <button onClick={() => { setReadAtypecityModal(true) }} className="bg-green-600 hover:bg-green-800 text-white rounded-lg px-6 py-2 text-md mr-4">
-                                    Anotar Conclusões
+                                    Anotar Conclusões e Comentário
                                 </button>
                                 {readAtipycalityModal && (
                                     <div><ResultModal id={Number(id)} recordingVideoId={videoId} isOpen={true} annotation={annotation} onClose={() => setReadAtypecityModal(false)} /></div>
