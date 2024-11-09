@@ -173,7 +173,7 @@ export default function Annotate() {
         if (selectedFlag === 'pontual') frames = [currentFrame];
         else frames = [initialFrame, endFrame];
         const newEvent: EventModel = {
-            name: selectedOption,
+            eventType: {name: selectedOption},
             eventTypeId: options.find(option => option.name === selectedOption)?.id || 0,
             frames: frames,
         };

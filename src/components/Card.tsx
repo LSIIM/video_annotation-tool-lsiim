@@ -9,7 +9,6 @@ interface Props {
 export default function Card({ fileInfo, onAnnotate, onVisualize }: Props) {
     const mainVideo = fileInfo.recordingsVideos.find(video => video.projectVideoType.isMain);
     const thumbnail = mainVideo?.thumb
-    console.log(thumbnail);
 
     return (
         <section className='h-40 flex justify-between max-w-full rounded-xl bg-zinc-800'>

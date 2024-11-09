@@ -18,7 +18,7 @@ export default function EventContainer ({ data, option, onRemove }: Props) {
             </div>
         );
     }
-    
+
     function removeEvent(index: number) {
         onRemove(index);
     }
@@ -30,7 +30,7 @@ export default function EventContainer ({ data, option, onRemove }: Props) {
                 {data.events.map((event, index) => (
                     <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex justify-between mr-2">
                         <div>
-                            <p className="font-semibold">{event.name}</p>
+                            <p className="font-semibold">{event.eventType.name}</p>
                             {event.frames.length === 1 ? (
                                 <p>Evento pontual em {event.frames[0]}</p>
                             ) : (

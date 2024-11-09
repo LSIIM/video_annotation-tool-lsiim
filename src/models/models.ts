@@ -1,7 +1,7 @@
 export interface EventModel {
-    name: string;
     eventTypeId: number;
     frames: number[];
+    eventType: {name: string};
 }
 
 export interface ResultModel {

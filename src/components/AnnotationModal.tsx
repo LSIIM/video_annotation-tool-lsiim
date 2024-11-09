@@ -16,7 +16,6 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
   const _navigate = useNavigate();
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
   const urlPath = apiPath + `/v1/recording/${id}/annotation`;
-  console.log("URLPATH", urlPath);
 
   useEffect(() => {
     const loadAnnotations = async () => {
@@ -24,7 +23,7 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
         const response = await fetch(urlPath);
         const data = await response.json();
         console.log("DATA", data);
-        setAnnotations(data.annotationVideos[0]);
+        if (data.annotationVideos[0].events) setAnnotations(data.annotationVideos[0]);
       } catch (error) {
         console.log('Erro ao carregar as anotações:', error);
         toast.error('Erro ao carregar as anotações.');
