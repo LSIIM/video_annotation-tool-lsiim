@@ -3,11 +3,11 @@ import { Trash2 } from "lucide-react";
 
 interface Props {
     data: AnnotationModel;
-    option: string;
+    mode: string;
     onRemove: (index: number) => void;
 }
 
-export default function EventContainer ({ data, option, onRemove }: Props) {
+export default function EventContainer ({ data, mode, onRemove }: Props) {
     if (!data) {
         return (
             <div className="flex flex-col mt-2 mr-2 max-w-[90%]">
@@ -39,7 +39,7 @@ export default function EventContainer ({ data, option, onRemove }: Props) {
                                         <p>Frame inicial: {event.frames[0]} | Frame final: {event.frames[1]}</p>
                                     )}
                                 </div>
-                                {option === "edit" && (
+                                {mode === "edit" && (
                                     <button onClick={() => removeEvent(index)}>
                                         <Trash2 />
                                     </button>

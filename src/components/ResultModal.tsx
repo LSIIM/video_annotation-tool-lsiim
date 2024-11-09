@@ -1,8 +1,9 @@
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
-import { AnnotationModel, AnnotationResultModel, ResultModelTemplate } from '@/models/models';
+import { AnnotationModel, ResultModelTemplate } from '@/models/models';
 import EventsContainer from './EventsContainer';
 import { useEffect, useState } from 'react';
+import ResultsContainer from './ResultsContainer';
 
 interface Props {
   isOpen: boolean;
@@ -13,7 +14,7 @@ interface Props {
 }
 
 export default function ResultModal({ isOpen, id, onClose, annotation, recordingVideoId }: Props) {
-  const [results, setResults] = useState<AnnotationResultModel[]>(annotation.results || []);
+  // const [results, setResults] = useState<AnnotationResultModel[]>(annotation.results || []);
   const [resultOptions, setResultOptions] = useState<ResultModelTemplate[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
 
@@ -30,7 +31,6 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
 
   async function loadResults() {
     if(resultOptions.length == 0) return;
-    setResults(annotation.results || []);
     for (const result of annotation.results || []) {
       const resultTypeIndex = resultOptions.findIndex((option) => option.id === result.resultTypeId);
       const resultTypeOptionSelected = resultOptions[resultTypeIndex].resultTypesOptions?.find((option) => option.id === result.resultTypeOptionId);
@@ -110,54 +110,10 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="containers" className="flex m-2 h-[85%] justify-between">
-        <div className="flex flex-col mt-2 mx-2">
-          <h2 className="text-xl font-bold mb-4">Conclusões</h2>
-          <div className="overflow-y-auto">
-            {resultOptions.map((result, index) => (
-              <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex items-center justify-between mr-2 gap-8">
-                <div className="flex items-center">
-                  <p className="font-semibold">Resultado: {result.name}</p>
-                </div>
-                <div className="flex items-center">
-                  {result.resultTypesOptions && result.resultTypesOptions.length > 0 ? (
-                    <select
-                      className="bg-gray-700 text-white rounded-lg px-4 py-2"
-                      onChange={(e) => {
-                        setSelectedOptions({ ...selectedOptions, [index]: e.target.value });
-                      }}
-                      value={selectedOptions[index] || 'Selecione uma opção'}
-                    >
-                      <option value="Selecione uma opção">Selecione uma opção</option>
-                      {result.resultTypesOptions.map((opt) => (
-                        <option key={opt.name} value={opt.name}>
-                          {opt.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type="number"
-                      placeholder="Insira o valor"
-                      value={results[index]?.scalar || ''}
-                      onChange={(e) => {
-                        const updatedResults = [...results];
-                        updatedResults[index] = {
-                          ...updatedResults[index],
-                          scalar: parseFloat(e.target.value),
-                        };
-                        setResults(updatedResults);
-                      }}
-                      className="bg-gray-700 text-white rounded-lg px-4 py-2 w-36"
-                    />
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
         <div className='w-1/3'>
-          <EventsContainer data={annotation} option="edit" onRemove={() => { }} />
+          <EventsContainer data={annotation} mode="edit" onRemove={() => { }} />
         </div>
+        <ResultsContainer annotation={annotation} mode="edit" />
       </div>
 
       <div className='flex space-x-4 justify-end m-4'>

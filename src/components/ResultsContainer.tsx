@@ -3,10 +3,10 @@ import { AnnotationModel, ResultModelTemplate } from "@/models/models";
 
 interface Props {
     annotation: AnnotationModel;
-    option: string
+    mode: string
 }
 
-export default function ResultsContainer({ annotation, option }: Props) {
+export default function ResultsContainer({ annotation, mode }: Props) {
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
     const [toggles, setToggles] = useState<boolean[]>([]);
     const [resultOptions, setResultOptions] = useState<ResultModelTemplate[]>([]);
@@ -17,16 +17,17 @@ export default function ResultsContainer({ annotation, option }: Props) {
 
     useEffect(() => {
         loadResults();
-        console.log(selectedOptions);
     }, [resultOptions]);
 
     async function loadResults() {
         if (resultOptions.length == 0) return;
+        const initialSelectedOptions: { [key: number]: string } = {};
         for (const result of annotation.results || []) {
             const resultTypeIndex = resultOptions.findIndex((option) => option.id === result.resultTypeId);
             const resultTypeOptionSelected = resultOptions[resultTypeIndex].resultTypesOptions?.find((option) => option.id === result.resultTypeOptionId);
-            setSelectedOptions({ ...selectedOptions, [resultTypeIndex]: resultTypeOptionSelected?.name || '' });
+            initialSelectedOptions[resultTypeIndex] = resultTypeOptionSelected?.name || '';
         }
+        setSelectedOptions(initialSelectedOptions);
     }
     async function loadOptions() {
         const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
@@ -57,13 +58,13 @@ export default function ResultsContainer({ annotation, option }: Props) {
                             selectedOptions[index] && (
                             <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex items-center justify-between mr-2 gap-8">
                                     <div className="flex-col items-center">
-                                        <p className="font-semibold">{result.name}:</p>
-                                        <p className="italic">{selectedOptions[index]}</p>
+                                        <p className="font-semibold">{result.name}</p>
+                                        { mode === "see" && (<p className="italic">{selectedOptions[index]}</p>)}
                                     </div>
-                                {option === "edit" && (
+                                {mode === "edit" && (
                                     <div className="flex items-center">
                                         {result.resultTypesOptions && result.resultTypesOptions.length > 0 ? (
-                                            <select className="bg-gray-700 text-white rounded-lg px-4 py-2">
+                                            <select key={selectedOptions[index]} value={selectedOptions[index]} className="bg-gray-700 text-white rounded-lg px-4 py-2">
                                                 <option value="">Selecione uma opção</option>
                                                 {result.resultTypesOptions.map((opt) => (
                                                     <option key={opt.name} value={opt.name}>

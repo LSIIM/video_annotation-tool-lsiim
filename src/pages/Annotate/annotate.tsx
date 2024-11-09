@@ -269,7 +269,7 @@ export default function Annotate() {
                     ) : (
                         <div className="flex flex-col justify-between h-full">
                             <div className="flex-grow">
-                                <EventsContainer data={annotation} option="edit" onRemove={handleRemoveEvent}/>
+                                <EventsContainer data={annotation} mode="edit" onRemove={handleRemoveEvent}/>
                             </div>
                             <div className="flex justify-between items-end">
                                 <div />

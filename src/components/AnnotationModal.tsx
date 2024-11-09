@@ -13,7 +13,7 @@ interface Props {
 }
 
 export default function AnnotationModal({ isOpen, id, onClose }: Props) {
-  const [annotations, setAnnotations] = useState<AnnotationModel>({events: [], results: [], recordingVideoId: 0});
+  const [annotation, setAnnotation] = useState<AnnotationModel>({events: [], results: [], recordingVideoId: 0});
   const _navigate = useNavigate();
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
   const urlPath = apiPath + `/v1/recording/${id}/annotation`;
@@ -24,7 +24,7 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
         const response = await fetch(urlPath);
         const data = await response.json();
         console.log("DATA", data);
-        if (data.annotationVideos[0].events || data.annotationVideos[0].results) setAnnotations(data.annotationVideos[0]);
+        if (data.annotationVideos[0].events || data.annotationVideos[0].results) setAnnotation(data.annotationVideos[0]);
       } catch (error) {
         console.log('Erro ao carregar as anotações:', error);
         toast.error('Erro ao carregar as anotações.');
@@ -45,8 +45,9 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
       overlayClassName="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
     >
       <div id="video-controller" className="flex ml-4 my-2">
-        <ResultsContainer annotation={annotations} option="see"/>
-        <EventContainer data={annotations} onRemove={() => { }} option="see"/>
+        <EventContainer data={annotation} onRemove={() => { }} mode="see"/>
+        <ResultsContainer annotation={annotation} mode="see"/>
+        {/* <CommentContainer annotation={annotation} mode="see"/> */}
       </div>
 
       <div className='flex space-x-4 justify-center mb-3 mx-2'>
