@@ -9,11 +9,10 @@ interface Props {
   id: number;
   recordingVideoId: number;
   onClose: () => void;
-  hadAnnotation: boolean;
   annotation: AnnotationModel;
 }
 
-export default function ResultModal({ isOpen, id, onClose, annotation, recordingVideoId, hadAnnotation }: Props) {
+export default function ResultModal({ isOpen, id, onClose, annotation, recordingVideoId }: Props) {
   const [results, setResults] = useState<ResultModel[]>(annotation.results || []);
   const [resultOptions, setResultOptions] = useState<ResultModel[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
@@ -30,7 +29,6 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
     setResults(annotation.results || []);
     console.log("Results loaded:", results);
     console.log("Annotation:", annotation);
-    console.log("HadAnnotation:", hadAnnotation);
   }
 
   async function loadOptions() {
@@ -77,7 +75,7 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
         }]
       }
       const response = await fetch(urlPath, {
-        method: hadAnnotation?'PUT':'POST',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },

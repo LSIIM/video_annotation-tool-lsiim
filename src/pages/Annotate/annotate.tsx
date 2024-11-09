@@ -19,7 +19,6 @@ export default function Annotate() {
     const [videoPath, setVideoPath] = useState<string>("");
     const [selectedOption, setSelectedOption] = useState("Selecione uma opção");
     const [readAtipycalityModal, setReadAtypecityModal] = useState<boolean>(false);
-    const [hadAnnotation, setHadAnnotation] = useState<boolean>(false);
     const [options, setOptions] = useState<OptionsModel[]>([]);
     const [videoId, setVideoId] = useState<number>(0);
     const { id } = useParams();
@@ -65,15 +64,9 @@ export default function Annotate() {
             const response = await fetch(annotationUrlPath);
             if (!response.ok) throw new Error("Arquivo não encontrado.");
             const data = await response.json();
-            console.log("DATA ", data.annotationVideos[0]);
-            setAnnotation(data.annotationVideos[0]);
-            if (annotation.events.length>0) setHadAnnotation(true);
+            if (data.annotationVideos[0].events) setAnnotation(data.annotationVideos[0]);
         } catch (error) {
-            setAnnotation({comment: "", recordingVideoId: 0, events: [], results: [] });
-            console.log("JÁ FALEI QUE DEU MERDA ", error);
             toast.error("Nenhuma anotação encontrada.");
-        }finally{
-            console.log(hadAnnotation);
         }
     };
 
@@ -147,16 +140,12 @@ export default function Annotate() {
             if (aux < 1) aux = 1;
             setEndFrame(aux);
         }
-        else if (option == "setInitial") {
-            setInitialFrame(currentFrame);
-            // if (endFrame < currentFrame) setEndFrame(currentFrame);
-        }
+        else if (option == "setInitial") setInitialFrame(currentFrame);
     }
 
     function handleRightOnClick(option: string) {
         if (option == "initial") {
             const aux = initialFrame + 1;
-            // if (aux > endFrame) aux = endFrame;
             setInitialFrame(aux);
         }
         else if (option == "end") {
@@ -164,10 +153,7 @@ export default function Annotate() {
             if (aux > totalFrames) aux = totalFrames;
             setEndFrame(aux);
         }
-        else if (option == "setEnd") {
-            setEndFrame(currentFrame);
-            // if (initialFrame > currentFrame) setInitialFrame(currentFrame);
-        }
+        else if (option == "setEnd") setEndFrame(currentFrame);
     }
 
     function handleAddEvent() {
@@ -306,7 +292,7 @@ export default function Annotate() {
                                     Anotar Conclusões
                                 </button>
                                 {readAtipycalityModal && (
-                                    <div><ResultModal id={Number(id)} hadAnnotation={hadAnnotation} recordingVideoId={videoId} isOpen={true} annotation={annotation} onClose={() => setReadAtypecityModal(false)} /></div>
+                                    <div><ResultModal id={Number(id)} recordingVideoId={videoId} isOpen={true} annotation={annotation} onClose={() => setReadAtypecityModal(false)} /></div>
                                 )}
                             </div>
                         </div>
