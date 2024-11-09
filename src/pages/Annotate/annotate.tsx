@@ -64,8 +64,9 @@ export default function Annotate() {
             const response = await fetch(annotationUrlPath);
             if (!response.ok) throw new Error("Arquivo não encontrado.");
             const data = await response.json();
-            if (data.annotationVideos[0].events) setAnnotation(data.annotationVideos[0]);
+            if (data.annotationVideos[0].events || data.annotationVideos[0].results) setAnnotation(data.annotationVideos[0]);
         } catch (error) {
+            console.log('Erro ao carregar as anotações:', error);
             toast.error("Nenhuma anotação encontrada.");
         }
     };
@@ -185,22 +186,6 @@ export default function Annotate() {
     function handleRemoveEvent(index: number) {
         const updatedAnnotations = annotation.events.filter((_, i) => i !== index);
         setAnnotation({ ...annotation, events: updatedAnnotations });
-
-        // // Simulação de salvar a anotação removida (substituir com lógica de API)
-        // fetch(`/videos/${id}/save-annotation`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({ annotations: updatedAnnotations }),
-        // })
-        //     .then(response => {
-        //         if (!response.ok) {
-        //             throw new Error('Erro ao salvar anotações.');
-        //         }
-        //         toast.success('Anotação removida com sucesso!');
-        //     })
-        //     .catch(() => toast.error('Erro ao remover anotação.'));
     }
 
     return (

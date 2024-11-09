@@ -1,19 +1,14 @@
 import { useState, useEffect } from "react";
-import { AnnotationModel, ResultModel } from "@/models/models";
-// import { Trash2 } from "lucide-react";
+import { AnnotationModel, AnnotationResultModel, ResultModelTemplate } from "@/models/models";
 
 interface Props {
     annotation: AnnotationModel;
-    // onRemove: (index: number) => void;
 }
 
 export default function ResultsContainer({ annotation }: Props) {
-    const [results, setResults] = useState<ResultModel[]>(annotation.results || []);
-    const [resultOptions, setResultOptions] = useState<ResultModel[]>([]);
+    const [results, setResults] = useState<AnnotationResultModel[]>(annotation.results || []);
+    const [resultOptions, setResultOptions] = useState<ResultModelTemplate[]>([]);
     const [toggles, setToggles] = useState<boolean[]>([]);
-    // const [selectedResult, setSelectedResult] = useState<string>("");
-    // const [selectedOption, setSelectedOption] = useState<string | null>(null);
-    // const [additionalOptions, setAdditionalOptions] = useState<ResultOptionsModel[]>([]);
 
     useEffect(() => {
         loadOptions();
@@ -31,50 +26,13 @@ export default function ResultsContainer({ annotation }: Props) {
 
         try {
             const response = await fetch(urlPath);
-            const options: ResultModel[] = await response.json();
+            const options: ResultModelTemplate[] = await response.json();
             setResultOptions(options);
         } catch (error) {
             console.error("Erro ao carregar as opções:", error);
             setResultOptions([]);
         }
     }
-
-    // function removeResult(index: number) {
-    //     onRemove(index);
-    //     const updatedToggles = [...toggles];
-    //     updatedToggles.splice(index, 1);
-    //     setToggles(updatedToggles);
-    // }
-
-    // function handleAddResult() {
-    //     const selected = resultOptions.find((option) => option.name === selectedResult);
-    //     if (!selected) return;
-
-    //     const newResult: ResultModel = {
-    //         name: selectedResult,
-    //         description: "",
-    //         resultTypesOptions: selected.resultTypesOptions || []
-    //     };
-
-    //     setResults([...results, newResult]);
-    //     setSelectedResult("");
-    //     setSelectedOption(null);
-    //     setAdditionalOptions([]);
-    //     setToggles([...toggles, false]); // Adiciona um toggle desativado para o novo resultado
-    // }
-
-    // function handleResultChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    //     const selectedName = event.target.value;
-    //     setSelectedResult(selectedName);
-
-    //     const selected = resultOptions.find((option) => option.name === selectedName);
-    //     setAdditionalOptions(selected?.resultTypesOptions || []);
-    //     setSelectedOption(null);
-    // }
-
-    // function handleOptionChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    //     setSelectedOption(event.target.value);
-    // }
 
     function toggleOption(index: number) {
         const updatedToggles = [...toggles];

@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 import Modal from 'react-modal';
-import { AnnotationModel, ResultModel } from '@/models/models';
+import { AnnotationModel, AnnotationResultModel, ResultModelTemplate } from '@/models/models';
 import EventsContainer from './EventsContainer';
 import { useEffect, useState } from 'react';
 
@@ -13,8 +13,8 @@ interface Props {
 }
 
 export default function ResultModal({ isOpen, id, onClose, annotation, recordingVideoId }: Props) {
-  const [results, setResults] = useState<ResultModel[]>(annotation.results || []);
-  const [resultOptions, setResultOptions] = useState<ResultModel[]>([]);
+  const [results, setResults] = useState<AnnotationResultModel[]>(annotation.results || []);
+  const [resultOptions, setResultOptions] = useState<ResultModelTemplate[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
 
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
@@ -22,21 +22,28 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
 
   useEffect(() => {
     loadOptions();
-    loadResults();
   }, []);
 
+  useEffect(() => {
+    loadResults();
+  }, [resultOptions]);
+
   async function loadResults() {
+    if(resultOptions.length == 0) return;
     setResults(annotation.results || []);
-    console.log("Results loaded:", results);
-    console.log("Annotation:", annotation);
+    for (const result of annotation.results || []) {
+      const resultTypeIndex = resultOptions.findIndex((option) => option.id === result.resultTypeId);
+      const resultTypeOptionSelected = resultOptions[resultTypeIndex].resultTypesOptions?.find((option) => option.id === result.resultTypeOptionId);
+      setSelectedOptions({ ...selectedOptions, [resultTypeIndex]: resultTypeOptionSelected?.name || '' });
+    }
   }
 
   async function loadOptions() {
     const urlPath = `${apiPath}/v1/result-type`;
     try {
       const response = await fetch(urlPath);
-      const options: ResultModel[] = await response.json();
-      setResultOptions(options);
+      const options: ResultModelTemplate[] = await response.json();
+      await setResultOptions(options);
     } catch (error) {
       console.error("Erro ao carregar as opções:", error);
       setResultOptions([]);
@@ -63,7 +70,7 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
         frames: event.frames
       }
     });
-    // console.log("Filled results:", filledResults);
+
     let jsonBody = {};
     try {
       jsonBody = {

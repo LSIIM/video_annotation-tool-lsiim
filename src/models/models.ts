@@ -4,12 +4,21 @@ export interface EventModel {
     eventType: {name: string};
 }
 
-export interface ResultModel {
+export interface ResultModelTemplate {
+    id: number;
+    name: string;
+    description: string;
+    scalar?: number;
+    resultTypesOptions: ResultOptionsModel[];
+}
+
+export interface AnnotationResultModel {
     id: number;
     name: string;
     description: string;
     scalar: number;
-    resultTypesOptions: ResultOptionsModel[];
+    resultTypeOptionId: number;
+    resultTypeId: number;
 }
 
 export interface ResultOptionsModel {
@@ -25,7 +34,7 @@ export interface AnnotationModel {
     comment?: string;
     recordingVideoId: number;
     events: EventModel[];
-    results: ResultModel[];
+    results: AnnotationResultModel[];
 }
 
 export interface OptionsModel{
