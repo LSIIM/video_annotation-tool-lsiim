@@ -13,7 +13,7 @@ export default function ResultsContainer({ annotation, option }: Props) {
 
     useEffect(() => {
         loadOptions();
-    }, []);
+    }, [annotation]);
 
     useEffect(() => {
         loadResults();
@@ -49,36 +49,42 @@ export default function ResultsContainer({ annotation, option }: Props) {
 
     return (
         <div className="flex flex-col mt-2 mr-2">
-            <h2 className="text-xl font-bold mb-4">Conclusões</h2>
-            <div className="overflow-y-auto">
-                {resultOptions.map((result, index) => (
-                    selectedOptions[index] && (
-                    <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex items-center justify-between mr-2 gap-8">
-                            <div className="flex-col items-center">
-                                <p className="font-semibold">{result.name}:</p>
-                                <p className="italic">{selectedOptions[index]}</p>
-                            </div>
-                        {option === "edit" && (
-                            <div className="flex items-center">
-                                {result.resultTypesOptions && result.resultTypesOptions.length > 0 ? (
-                                    <select className="bg-gray-700 text-white rounded-lg px-4 py-2">
-                                        <option value="">Selecione uma opção</option>
-                                        {result.resultTypesOptions.map((opt) => (
-                                            <option key={opt.name} value={opt.name}>
-                                                {opt.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                ) : (
-                                    <button onClick={() => toggleOption(index)} className={`px-4 py-2 rounded-lg ${toggles[index] ? 'bg-green-500' : 'bg-slate-800'} w-36`}>
-                                        {toggles[index] ? 'Detectado' : 'Não detectado'}
-                                    </button>
+            {annotation.results && annotation.results.length > 0 ? (
+                <>
+                    <h2 className="text-xl font-bold mb-4">Conclusões</h2>
+                    <div className="overflow-y-auto">
+                        {resultOptions.map((result, index) => (
+                            selectedOptions[index] && (
+                            <div key={index} className="mb-4 p-2 bg-gray-700 rounded-lg shadow-md flex items-center justify-between mr-2 gap-8">
+                                    <div className="flex-col items-center">
+                                        <p className="font-semibold">{result.name}:</p>
+                                        <p className="italic">{selectedOptions[index]}</p>
+                                    </div>
+                                {option === "edit" && (
+                                    <div className="flex items-center">
+                                        {result.resultTypesOptions && result.resultTypesOptions.length > 0 ? (
+                                            <select className="bg-gray-700 text-white rounded-lg px-4 py-2">
+                                                <option value="">Selecione uma opção</option>
+                                                {result.resultTypesOptions.map((opt) => (
+                                                    <option key={opt.name} value={opt.name}>
+                                                        {opt.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        ) : (
+                                            <button onClick={() => toggleOption(index)} className={`px-4 py-2 rounded-lg ${toggles[index] ? 'bg-green-500' : 'bg-slate-800'} w-36`}>
+                                                {toggles[index] ? 'Detectado' : 'Não detectado'}
+                                            </button>
+                                        )}
+                                    </div>
                                 )}
                             </div>
-                        )}
+                        )))}
                     </div>
-                )))}
-            </div>
+                </>
+            ):(
+                <p className="text-lg font-semibold">Sem conclusões</p>
+            )}
         </div>
     );
 }
