@@ -49,7 +49,7 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
           <EventContainer data={annotation} onRemove={() => { }} mode="see"/>
           </div>
         <div>
-          <ResultsContainer annotation={annotation} mode="see"/>
+          <ResultsContainer annotation={annotation} mode="see" />
         </div>
         <div>
           {annotation?.comment !== undefined && (<CommentContainer annotation={annotation} mode="see"/>)}

@@ -39,6 +39,10 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
     }
   }
 
+  const updateSelectedOptions = (index: number, value: string) => {
+    setSelectedOptions((prev) => ({ ...prev, [index]: value }));
+  };
+
   async function loadOptions() {
     const urlPath = `${apiPath}/v1/result-type`;
     try {
@@ -115,10 +119,10 @@ export default function ResultModal({ isOpen, id, onClose, annotation, recording
           <EventsContainer data={annotation} mode="" onRemove={() => { }} />
         </div>
         <div className={`${size[1]}`}>
-          <ResultsContainer annotation={annotation} mode="edit" />
+          <ResultsContainer annotation={annotation} mode="edit" selectedOptions={selectedOptions} onSelectOption={updateSelectedOptions}/>
         </div>
         <div className={`${size[2]}`}>
-          <CommentContainer annotation={annotation} mode="edit" />
+          <CommentContainer annotation={annotation} mode="edit"  />
         </div>
       </div>
       <div className='flex space-x-4 justify-end m-4'>
