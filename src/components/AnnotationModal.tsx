@@ -15,9 +15,10 @@ interface Props {
 
 export default function AnnotationModal({ isOpen, id, onClose }: Props) {
   const [annotation, setAnnotation] = useState<AnnotationModel>({events: [], results: [], recordingVideoId: 0});
+  const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
   const _navigate = useNavigate();
   const apiPath = import.meta.env.VITE_API || 'http://localhost:5000';
-  const urlPath = apiPath + `/v1/recording/${id}/annotation`;
+  const urlPath = `${apiPath}/v1/recording/${id}/annotation`;
 
   useEffect(() => {
     const loadAnnotations = async () => {
@@ -36,6 +37,18 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
     }
   }, [id, isOpen]);
 
+  useEffect(() => {
+    if (annotation.results) {
+      const newSelectedOptions = annotation.results.reduce((acc, result) => {
+        acc[result.resultTypeId] = String(result.resultTypeOptionId);
+        return acc;
+      }, {} as { [key: number]: string });
+  
+      setSelectedOptions(newSelectedOptions);
+    }
+  }, [annotation.results]);
+  
+
   return (
     <Modal
       ariaHideApp={false}
@@ -49,7 +62,7 @@ export default function AnnotationModal({ isOpen, id, onClose }: Props) {
           <EventContainer data={annotation} onRemove={() => { }} mode="see"/>
           </div>
         <div>
-          <ResultsContainer annotation={annotation} mode="see" />
+          <ResultsContainer annotation={annotation} mode="see" selectedOptions={selectedOptions}/>
         </div>
         <div>
           {annotation?.comment !== undefined && (<CommentContainer annotation={annotation} mode="see"/>)}
